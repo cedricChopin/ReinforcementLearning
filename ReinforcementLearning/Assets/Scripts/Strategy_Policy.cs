@@ -10,7 +10,7 @@ public class Strategy_Policy : MonoBehaviour
     public int nbState = 16;
 
     public bool policyStable = false;
-    public List<float> States;
+    public List<AI_Type.State> States;
     public List<AI_Type.Action> PiStates;
     public float y = 0.75f;
     // Start is called before the first frame update
@@ -18,14 +18,19 @@ public class Strategy_Policy : MonoBehaviour
     {
 
 
-        States = new List<float>();
-        PiStates = new List<AI_Type.Action>();
+        States = new List<AI_Type.State>();
         for (int i = 0; i < nbState; i++)
         {
-            States.Add(0);
-            PiStates.Add((AI_Type.Action)Random.Range(0, 4));
+            AI_Type.State state = new AI_Type.State();
+            if (i == nbState - 1)
+            {
+                state.totalReward = 1;
+            }
+            state.totalReward = 0;
+            state.InitialAction = (AI_Type.Action)Random.Range(0, 4);
+            States.Add(state);
+            
         }
-        States[nbState - 1] = 1;
         PolicyEvaluation();
         PolicyImprovement();
     }
@@ -33,83 +38,41 @@ public class Strategy_Policy : MonoBehaviour
     void PolicyEvaluation()
     {
         float delta = 0f;
+        float theta = 0.01f;
         do
         {
-            for (int i = 0; i < nbState; i++)
+            for (int i = 0; i < States.Count; i++)
             {
-                float tmp = States[i];
-                float rewardNextStep = 0;
-                switch (PiStates[i])
+                float tmp = States[i].totalReward;
+                float rewardNextStep = States[i].totalReward;
+                switch (States[i].InitialAction)
                 {
-                    case AI_Type.Action.Down:
-                        if (i + 4 < nbState - 1)
-                            rewardNextStep = States[i + 4];
-                        break;
                     case AI_Type.Action.Top:
+                        if (i + 4 < States.Count - 1)
+                            rewardNextStep = States[i + 4].totalReward;
+                        break;
+                    case AI_Type.Action.Down:
                         if (i - 4 >= 0)
-                            rewardNextStep = States[i - 4];
+                            rewardNextStep = States[i - 4].totalReward;
                         break;
                     case AI_Type.Action.Right:
-                        if (i + 1 < nbState - 1)
-                            rewardNextStep = States[i + 1];
+                        if (i + 1 < States.Count - 1)
+                            rewardNextStep = States[i + 1].totalReward;
                         break;
                     case AI_Type.Action.Left:
                         if (i - 1 >= 0)
-                            rewardNextStep = States[i - 1];
+                            rewardNextStep = States[i - 1].totalReward;
                         break;
 
                 }
-                States[i] = rewardNextStep + y * getPathValue(i, 100);
-                delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i]));
+                AI_Type.State stateTmp = States[i];
+                stateTmp.totalReward = tmp + y * rewardNextStep;
+                States[i] = stateTmp;
+                delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].totalReward));
 
             }
-        } while (delta < 0);
-    }
-    float getPathValue(int indexState, int nbIterMax)
-    {
-        if(indexState == nbState - 1 || nbIterMax == 0)
-        {
-            return States[indexState];
-        }
-        else
-        {
-            Debug.Log(PiStates[indexState]);
-            switch (PiStates[indexState])
-            {
-                case AI_Type.Action.Down:
-                    if (indexState + 4 < nbState - 1)
-                        return States[indexState] + getPathValue(indexState + 4, --nbIterMax);
-                    else
-                    {
-                        return States[indexState];
-                    }
-                case AI_Type.Action.Top:
-                    if (indexState - 4 >= 0)
-                        return States[indexState] + getPathValue(indexState - 4, --nbIterMax);
-                    else
-                    {
-                        return States[indexState];
-                    }
-                case AI_Type.Action.Right:
-                    if (indexState + 1 < nbState - 1)
-                        return States[indexState] + getPathValue(indexState + 1, --nbIterMax);
-                    else
-                    {
-                        return States[indexState];
-                    }
-                case AI_Type.Action.Left:
-                    if (indexState - 1 >= 0)
-                        return States[indexState] + getPathValue(indexState - 1, --nbIterMax);
-                    else
-                    {
-                        return States[indexState];
-                    }
-                default:
-                    return States[indexState];
-
-            }
-            return States[indexState];
-        }
+            PolicyImprovement();
+        } while (delta < theta);
     }
 
     List<AI_Type.Action> PolicyImprovement()
@@ -118,8 +81,10 @@ public class Strategy_Policy : MonoBehaviour
         Debug.Log("Training");
         for (int i = 0; i < nbState; i++)
         {
-            AI_Type.Action temp = PiStates[i];
-            PiStates[i] = getBestAction(i);
+            AI_Type.Action temp = States[i].InitialAction;
+            AI_Type.State best = States[i];
+            best.InitialAction = getBestAction(i);
+            States[i] = best;
             if(temp != PiStates[i])
             {
                 policyStable = false;
@@ -133,26 +98,26 @@ public class Strategy_Policy : MonoBehaviour
     }
     AI_Type.Action getBestAction(int indexState)
     {
-        float bestReward = 0;
+        float bestReward = -1;
         AI_Type.Action bestAction = AI_Type.Action.Down;
-        if (indexState - 1 >= 0 && bestReward < States[indexState - 1])
+        if (indexState - 1 >= 0 && bestReward < States[indexState - 1].totalReward)
         {
-            bestReward = States[indexState - 1];
+            bestReward = States[indexState - 1].totalReward;
             bestAction = AI_Type.Action.Left;
         }
-        if (indexState + 1 < nbState && bestReward < States[indexState + 1])
+        if (indexState + 1 < nbState && bestReward < States[indexState + 1].totalReward)
         {
-            bestReward = States[indexState + 1];
+            bestReward = States[indexState + 1].totalReward;
             bestAction = AI_Type.Action.Right;
         }
-        if (indexState - 4 >= 0 && bestReward < States[indexState - 4])
+        if (indexState - 4 >= 0 && bestReward < States[indexState - 4].totalReward)
         {
-            bestReward = States[indexState - 4];
+            bestReward = States[indexState - 4].totalReward;
             bestAction = AI_Type.Action.Down;
         }
-        if (indexState + 4 < nbState && bestReward < States[indexState + 4])
+        if (indexState + 4 < nbState && bestReward < States[indexState + 4].totalReward)
         {
-            bestReward = States[indexState + 4];
+            bestReward = States[indexState + 4].totalReward;
             bestAction = AI_Type.Action.Top;
         }
 
