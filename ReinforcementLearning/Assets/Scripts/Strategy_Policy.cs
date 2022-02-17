@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 
 public class Strategy_Policy : MonoBehaviour
@@ -12,6 +13,8 @@ public class Strategy_Policy : MonoBehaviour
     public bool policyStable = false;
     public List<AI_Type.State> States;
     public List<AI_Type.Action> PiStates;
+    public List<float> rewards;
+    public List<AI_Type.Action> actions;
     public float y = 0.75f;
 
     public float delta = 0f;
@@ -25,32 +28,39 @@ public class Strategy_Policy : MonoBehaviour
         for (int i = 0; i < nbState; i++)
         {
             AI_Type.State state = new AI_Type.State();
+            state.totalReward = 0;
             if (i == nbState - 1)
             {
                 state.totalReward = 1;
             }
-            state.totalReward = 0;
+            
             state.InitialAction = (AI_Type.Action)Random.Range(0, 4);
             States.Add(state);
             
         }
-        PolicyEvaluation();
-        PolicyImprovement();
+        while (policyStable == false)
+        {
+            PolicyEvaluation();
+            PolicyImprovement();
+        }
+        rewards = States.Select(p => p.totalReward).ToList();
+        actions = States.Select(p => p.InitialAction).ToList();
     }
 
     void PolicyEvaluation()
     {
-        delta = 0f;
+        
         do
         {
+            delta = 0f;
             for (int i = 0; i < States.Count; i++)
             {
                 float tmp = States[i].totalReward;
-                float rewardNextStep = States[i].totalReward;
+                float rewardNextStep = 0;
                 switch (States[i].InitialAction)
                 {
                     case AI_Type.Action.Top:
-                        if (i + 4 < States.Count - 1)
+                        if (i + 4 < States.Count)
                             rewardNextStep = States[i + 4].totalReward;
                         break;
                     case AI_Type.Action.Down:
@@ -58,7 +68,7 @@ public class Strategy_Policy : MonoBehaviour
                             rewardNextStep = States[i - 4].totalReward;
                         break;
                     case AI_Type.Action.Right:
-                        if (i + 1 < States.Count - 1)
+                        if (i + 1 < States.Count)
                             rewardNextStep = States[i + 1].totalReward;
                         break;
                     case AI_Type.Action.Left:
@@ -73,8 +83,7 @@ public class Strategy_Policy : MonoBehaviour
                 delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].totalReward));
 
             }
-            PolicyImprovement();
-        } while (delta < theta);
+        } while (delta > theta);
     }
 
     List<AI_Type.Action> PolicyImprovement()
@@ -87,14 +96,10 @@ public class Strategy_Policy : MonoBehaviour
             AI_Type.State best = States[i];
             best.InitialAction = getBestAction(i);
             States[i] = best;
-            if(temp != PiStates[i])
+            if(temp != States[i].InitialAction)
             {
                 policyStable = false;
             }
-        }
-        if(policyStable == false)
-        {
-            PolicyEvaluation();
         }
         return PiStates;
     }

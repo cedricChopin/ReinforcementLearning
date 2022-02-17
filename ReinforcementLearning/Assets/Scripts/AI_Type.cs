@@ -19,4 +19,6 @@ using UnityEngine;
             public float totalReward;
             public Action InitialAction;
         }
+
+    
     }
