@@ -13,6 +13,9 @@ public class Strategy_Policy : MonoBehaviour
     public List<AI_Type.State> States;
     public List<AI_Type.Action> PiStates;
     public float y = 0.75f;
+
+    public float delta = 0f;
+    public float theta = 0.01f;
     // Start is called before the first frame update
     void Start()
     {
@@ -37,8 +40,7 @@ public class Strategy_Policy : MonoBehaviour
 
     void PolicyEvaluation()
     {
-        float delta = 0f;
-        float theta = 0.01f;
+        delta = 0f;
         do
         {
             for (int i = 0; i < States.Count; i++)
@@ -122,6 +124,33 @@ public class Strategy_Policy : MonoBehaviour
         }
 
         return bestAction;
+    }
+
+    AI_Type.Action ValueIteration(AI_Type.State currentState, List<AI_Type.State> states)
+    {
+        AI_Type.State bestState = new AI_Type.State();
+        bestState.totalReward = 0;
+        List<AI_Type.State> newStates = new List<AI_Type.State>();
+        while (delta >= theta)
+        {
+            delta = 0;
+            for (int i = 0; i < states.Count; i++)
+            {
+                AI_Type.State tmp = currentState;
+                currentState.totalReward = tmp.totalReward + y * states[i].totalReward;
+                tmp.InitialAction = states[i].InitialAction;
+                newStates.Add(tmp);
+                delta = Mathf.Max(delta, Mathf.Abs(tmp.totalReward - currentState.totalReward));
+            }
+        }
+        
+        for(int i = 0; i < newStates.Count; i++)
+        {
+            if (newStates[i].totalReward >= bestState.totalReward)
+                bestState = newStates[i];
+        }
+
+        return bestState.InitialAction;
     }
 
 }

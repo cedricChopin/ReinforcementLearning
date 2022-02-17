@@ -16,7 +16,6 @@ using UnityEngine;
 
         public struct State
         {
-            public Vector2 pos;
             public float totalReward;
             public Action InitialAction;
         }
