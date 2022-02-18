@@ -11,11 +11,12 @@ public enum Action
     Down,
     Left,
     Right,
-    None
+    None,
+    Win
 }
 public class Strategy_Policy : MonoBehaviour
 {
-    
+
     public List<AI_Type.Action> WorldStates;
     public int nbState;
 
@@ -59,14 +60,28 @@ public class Strategy_Policy : MonoBehaviour
         test.Add(States[States.Count - 1]);
         test.Add(States[States.Count - 3]);
         test.Add(States[States.Count - 6]);
-        
+
     }
     public void PolicyIteration()
     {
         policyStable = false;
+        InitGrid();
+        while (policyStable == false)
+        {
+            PolicyEvaluation();
+            PolicyImprovement();
+            rewards = States.Select(p => p.reward).ToList();
+            actions = States.Select(p => p.action).ToList();
+            values = States.Select(p => p.value).ToList();
+        }
+        ChangeGrid();
+    }
+
+    private void InitGrid()
+    {
         for (int x = 0; x < gridManager.width; x++)
         {
-            
+
             for (int y = 0; y < gridManager.height; y++)
             {
                 States[x + y * gridManager.height].reward = 0f;
@@ -75,7 +90,7 @@ public class Strategy_Policy : MonoBehaviour
                 if (gridManager.GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.green)
                 {
                     States[x + y * gridManager.height].reward = 1;
-                    States[x + y * gridManager.height].action = Action.None;
+                    States[x + y * gridManager.height].action = Action.Win;
                 }
                 else if (gridManager.GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.red)
                 {
@@ -84,14 +99,6 @@ public class Strategy_Policy : MonoBehaviour
                 }
 
             }
-        }
-        while (policyStable == false)
-        {
-            PolicyEvaluation();
-            PolicyImprovement();
-            rewards = States.Select(p => p.reward).ToList();
-            actions = States.Select(p => p.action).ToList();
-            values = States.Select(p => p.value).ToList();
         }
     }
 
@@ -118,7 +125,6 @@ public class Strategy_Policy : MonoBehaviour
 
     void PolicyEvaluation()
     {
-        int iteration = 0;
         do
         {
             delta = 0f;
@@ -141,18 +147,20 @@ public class Strategy_Policy : MonoBehaviour
                         }
                         break;
                     case Action.Right:
-                        if ((i +1) % gridManager.width != 0) { 
+                        if ((i + 1) % gridManager.width != 0)
+                        {
                             NextState = States[i + 1];
                         }
                         break;
                     case Action.Left:
-                        if (i % gridManager.width != 0) { 
+                        if (i % gridManager.width != 0)
+                        {
                             NextState = States[i - 1];
                         }
                         break;
 
                 }
-                
+
                 if (NextState != null)
                 {
                     States[i].value = NextState.reward + y * NextState.value;
@@ -169,7 +177,7 @@ public class Strategy_Policy : MonoBehaviour
         for (int i = 0; i < States.Count; i++)
         {
             Action temp = States[i].action;
-            if (temp != Action.None)
+            if (temp != Action.None && temp != Action.Win)
             {
                 States[i].action = getBestAction(i);
                 if (temp != States[i].action)
@@ -183,18 +191,18 @@ public class Strategy_Policy : MonoBehaviour
     {
         float bestReward = -1;
         Action bestAction = Action.None;
-        
+
         if (indexState % gridManager.width != 0 && bestReward < States[indexState - 1].reward + y * States[indexState - 1].value)
         {
             bestReward = States[indexState - 1].reward + y * States[indexState - 1].value;
             bestAction = Action.Left;
         }
-        if ((indexState + 1)  % gridManager.width != 0 && bestReward < States[indexState + 1].reward + y * States[indexState + 1].value)
+        if ((indexState + 1) % gridManager.width != 0 && bestReward < States[indexState + 1].reward + y * States[indexState + 1].value)
         {
             bestReward = States[indexState + 1].reward + y * States[indexState + 1].value;
             bestAction = Action.Right;
         }
-        if (indexState - gridManager.height  >= 0 && bestReward < States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value)
+        if (indexState - gridManager.height >= 0 && bestReward < States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value)
         {
             bestReward = States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value;
             bestAction = Action.Down;
@@ -210,15 +218,20 @@ public class Strategy_Policy : MonoBehaviour
 
     public void ValueIteration()
     {
-        do{
+        InitGrid();
+        do
+        {
 
             delta = 0;
             for (int i = 0; i < States.Count - 1; i++)
             {
+
+
                 List<State> possibleState = new List<State>();
                 float tmp = States[i].value;
                 possibleState = GetPossibleActions(States[i]);
-                (States[i].value, States[i].action) = GetMaximumReward(possibleState);
+                if (possibleState.Count > 0)
+                    (States[i].value, States[i].action) = GetMaximumReward(possibleState);
                 delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].value));
             }
             Debug.Log("delta : " + delta);
@@ -246,6 +259,10 @@ public class Strategy_Policy : MonoBehaviour
     List<State> GetPossibleActions(State s)
     {
         List<State> possibleStates = new List<State>();
+        if (s.action == Action.None || s.action == Action.Win)
+        {
+            return possibleStates;
+        }
         int index = States.IndexOf(s);
         if (s.action != Action.None)
         {
