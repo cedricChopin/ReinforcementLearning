@@ -613,12 +613,13 @@ MonoBehaviour:
   WorldStates: 
   nbState: 16
   policyStable: 0
-  PiStates: 
   rewards: []
+  values: []
   actions: 
   y: 0.75
   delta: 0
   theta: 0.01
+  Tiles: {fileID: 1444857956}
 --- !u!4 &1206361577
 Transform:
   m_ObjectHideFlags: 0

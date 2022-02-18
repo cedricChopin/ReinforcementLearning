@@ -57,7 +57,7 @@ public class Strategy_Policy : MonoBehaviour
         test.Add(States[States.Count - 3]);
         test.Add(States[States.Count - 6]);
 
-        ValueIteration(States[States.Count - 2], test);
+        ValueIteration();
         /*while (policyStable == false)
         {
             PolicyEvaluation();
@@ -163,41 +163,85 @@ public class Strategy_Policy : MonoBehaviour
         return bestAction;
     }
 
-    public Action ValueIteration(State currentState, List<State> possibleStates)
+    public void ValueIteration()
     {
         int iteration = 0;
+        State currentState = States[0];
 
         State bestAction = new State();
+        State bestOf = new State();
         do{
 
             delta = 0;
-            for (int i = 0; i < possibleStates.Count - 1; i++)
+            for (int i = 0; i < States.Count - 1; i++)
             {
+                List<State> possibleState = new List<State>();
+                possibleState = GetPossibleActions(States[i]);
                 float tmp = currentState.value;
-                currentState.value = GetMaximumReward(possibleStates);
+                currentState.value = GetMaximumReward(possibleState, bestOf);
                 delta = Mathf.Max(delta, Mathf.Abs(tmp - currentState.value));
-                currentState.action = possibleStates[i].action;
 
                 if (currentState.value > bestAction.value)
                 {
-                    bestAction = currentState;
+                    bestAction = bestOf;
+                    currentState = bestAction;
                 }
                 Debug.Log($"valeur case {i} : " + tmp);
             }
             iteration ++;
             Debug.Log("delta : " + delta);
         } while (delta > theta && iteration < 10000);
-        return bestAction.action;
     }
 
-    float GetMaximumReward(List<State> states)
+    float GetMaximumReward(List<State> states, State bestAction)
     {
         float value_reward = -10;
         foreach (State s in states)
         {
             value_reward = (value_reward< s.value+s.reward) ? y*s.value+s.reward : value_reward;
+            bestAction = s;
         }
+
         return value_reward;
+    }
+
+    List<State> GetPossibleActions(State s)
+    {
+        List<State> possibleStates = new List<State>();
+        int index = States.IndexOf(s);
+        switch (s.action)
+        {
+            case Action.Top:
+                if (index + gridManager.height < States.Count)
+                {
+                    States[index + gridManager.height].action = Action.Top;
+                    possibleStates.Add(States[index + gridManager.height]);
+                }
+                break;
+            case Action.Down:
+                if (index - gridManager.height >= 0)
+                {
+                    States[index + gridManager.height].action = Action.Down;
+                    possibleStates.Add(States[index - gridManager.height]);
+                }
+                break;
+            case Action.Right:
+                if ((index + 1) % gridManager.width != 0)
+                {
+                    States[index + 1].action = Action.Right;
+                    possibleStates.Add(States[index + 1]);
+                }
+                break;
+            case Action.Left:
+                if (index % gridManager.width != 0)
+                {
+                    States[index - 1].action = Action.Right;
+                    possibleStates.Add(States[index - 1]);
+                }
+                break;
+        }
+
+        return possibleStates;
     }
 
 }
