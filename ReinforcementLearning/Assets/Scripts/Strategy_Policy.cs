@@ -22,8 +22,6 @@ public class Strategy_Policy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-
         States = new List<AI_Type.State>();
         for (int i = 0; i < nbState; i++)
         {
@@ -31,6 +29,7 @@ public class Strategy_Policy : MonoBehaviour
             state.totalReward = 0;
             if (i == nbState - 1)
             {
+                state.value = 1;
                 state.totalReward = 1;
             }
             
@@ -38,18 +37,25 @@ public class Strategy_Policy : MonoBehaviour
             States.Add(state);
             
         }
-        while (policyStable == false)
+
+        List<AI_Type.State> test = new List<AI_Type.State>();
+        test.Add(States[States.Count - 1]);
+        test.Add(States[States.Count - 3]);
+        test.Add(States[States.Count - 6]);
+
+        ValueIteration(States[States.Count - 2], test);
+        /*while (policyStable == false)
         {
             PolicyEvaluation();
             PolicyImprovement();
-        }
+        }*/
         rewards = States.Select(p => p.totalReward).ToList();
         actions = States.Select(p => p.InitialAction).ToList();
     }
 
     void PolicyEvaluation()
     {
-        
+        int iteration = 0;
         do
         {
             delta = 0f;
@@ -83,7 +89,9 @@ public class Strategy_Policy : MonoBehaviour
                 delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].totalReward));
 
             }
-        } while (delta > theta);
+            iteration++;
+            Debug.Log("Iteration : " + iteration);
+        } while (delta > theta && iteration < 6);
     }
 
     List<AI_Type.Action> PolicyImprovement()
@@ -131,31 +139,41 @@ public class Strategy_Policy : MonoBehaviour
         return bestAction;
     }
 
-    AI_Type.Action ValueIteration(AI_Type.State currentState, List<AI_Type.State> states)
+    public AI_Type.Action ValueIteration(AI_Type.State currentState, List<AI_Type.State> possibleStates)
     {
-        AI_Type.State bestState = new AI_Type.State();
-        bestState.totalReward = 0;
-        List<AI_Type.State> newStates = new List<AI_Type.State>();
-        while (delta >= theta)
-        {
-            delta = 0;
-            for (int i = 0; i < states.Count; i++)
-            {
-                AI_Type.State tmp = currentState;
-                currentState.totalReward = tmp.totalReward + y * states[i].totalReward;
-                tmp.InitialAction = states[i].InitialAction;
-                newStates.Add(tmp);
-                delta = Mathf.Max(delta, Mathf.Abs(tmp.totalReward - currentState.totalReward));
-            }
-        }
-        
-        for(int i = 0; i < newStates.Count; i++)
-        {
-            if (newStates[i].totalReward >= bestState.totalReward)
-                bestState = newStates[i];
-        }
+        int iteration = 0;
 
-        return bestState.InitialAction;
+        AI_Type.State bestAction = new AI_Type.State();
+        do{
+
+            delta = 0;
+            for (int i = 0; i < possibleStates.Count - 1; i++)
+            {
+                float tmp = currentState.value;
+                currentState.value = GetMaximumReward(possibleStates);
+                delta = Mathf.Max(delta, Mathf.Abs(tmp - currentState.value));
+                currentState.InitialAction = possibleStates[i].InitialAction;
+
+                if (currentState.value > bestAction.value)
+                {
+                    bestAction = currentState;
+                }
+                Debug.Log($"valeur case {i} : " + tmp);
+            }
+            iteration ++;
+            Debug.Log("delta : " + delta);
+        } while (delta > theta && iteration < 10000);
+        return bestAction.InitialAction;
+    }
+
+    float GetMaximumReward(List<AI_Type.State> states)
+    {
+        float value_reward = -10;
+        foreach (AI_Type.State s in states)
+        {
+            value_reward = (value_reward< s.value+s.totalReward) ? y*s.value+s.totalReward : value_reward;
+        }
+        return value_reward;
     }
 
 }
