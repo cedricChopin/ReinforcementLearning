@@ -4,21 +4,22 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class AI_Type
-{
-    public enum Action
+    public class AI_Type
     {
-        Top,
-        Down,
-        Left,
-        Right
-    }
+        public enum Action
+        {
+            Top,
+            Down,
+            Left,
+            Right
+        }
 
-    public struct State
-    {
-        public float value;
-        public float totalReward;
-        public Action InitialAction;
-    }
+        public struct State
+        {
+            public float totalReward;
+            public float value;
+            public Action InitialAction;
+        }
 
-}
+    
+    }
