@@ -65,7 +65,7 @@ public class Strategy_Policy : MonoBehaviour
     public void PolicyIteration()
     {
         policyStable = false;
-        InitGrid();
+        gridManager.InitGrid(ref States);
         while (policyStable == false)
         {
             PolicyEvaluation();
@@ -74,54 +74,11 @@ public class Strategy_Policy : MonoBehaviour
             actions = States.Select(p => p.action).ToList();
             values = States.Select(p => p.value).ToList();
         }
-        ChangeGrid();
+        gridManager.ChangeGrid(ref States);
     }
 
-    private void InitGrid()
-    {
-        for (int x = 0; x < gridManager.width; x++)
-        {
 
-            for (int y = 0; y < gridManager.height; y++)
-            {
-                States[x + y * gridManager.height].reward = 0f;
-                States[x + y * gridManager.height].value = 0f;
-                States[x + y * gridManager.height].action = (Action)Random.Range(0, 4);
-                if (gridManager.GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.green)
-                {
-                    States[x + y * gridManager.height].reward = 1;
-                    States[x + y * gridManager.height].action = Action.Win;
-                }
-                else if (gridManager.GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.red)
-                {
-                    States[x + y * gridManager.height].reward = -1;
-                    States[x + y * gridManager.height].action = Action.None;
-                }
-
-            }
-        }
-    }
-
-    public void ChangeGrid()
-    {
-        for (int x = 0; x < gridManager.width; x++)
-        {
-            for (int y = 0; y < gridManager.height; y++)
-            {
-                Tile tile = gridManager.GetTileAtPosition(new Vector2(x, y));
-                if (States[x + y * gridManager.height].action == Action.Left)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "← \n" + States[x + y * gridManager.height].value.ToString("N3");
-                else if (States[x + y * gridManager.height].action == Action.Right)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "→ \n" + States[x + y * gridManager.height].value.ToString("N3");
-                else if (States[x + y * gridManager.height].action == Action.Top)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↑ \n" + States[x + y * gridManager.height].value.ToString("N3");
-                else if (States[x + y * gridManager.height].action == Action.Down)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↓ \n" + States[x + y * gridManager.height].value.ToString("N3");
-                else
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = States[x + y * gridManager.height].value.ToString("N3");
-            }
-        }
-    }
+    
 
     void PolicyEvaluation()
     {
@@ -218,7 +175,7 @@ public class Strategy_Policy : MonoBehaviour
 
     public void ValueIteration()
     {
-        InitGrid();
+        gridManager.InitGrid(ref States);
         do
         {
 
@@ -237,7 +194,7 @@ public class Strategy_Policy : MonoBehaviour
             Debug.Log("delta : " + delta);
         } while (delta > theta);
 
-        ChangeGrid();
+        gridManager.ChangeGrid(ref States);
     }
 
     (float, Action) GetMaximumReward(List<State> states)
