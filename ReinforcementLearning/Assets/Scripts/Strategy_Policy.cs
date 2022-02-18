@@ -57,15 +57,15 @@ public class Strategy_Policy : MonoBehaviour
         test.Add(States[States.Count - 3]);
         test.Add(States[States.Count - 6]);
 
-        ValueIteration(States[States.Count - 2], test);
-        /*while (policyStable == false)
+        //ValueIteration(States[States.Count - 2], test);
+        while (policyStable == false)
         {
             PolicyEvaluation();
             PolicyImprovement();
             rewards = States.Select(p => p.reward).ToList();
             actions = States.Select(p => p.action).ToList();
             values = States.Select(p => p.value).ToList();
-        }*/
+        }
         
     }
 
@@ -75,7 +75,7 @@ public class Strategy_Policy : MonoBehaviour
         do
         {
             delta = 0f;
-            for (int i = 0; i < States.Count - 1; i++)
+            for (int i = 0; i < States.Count; i++)
             {
                 float tmp = States[i].value;
                 State NextState = null;
@@ -102,9 +102,6 @@ public class Strategy_Policy : MonoBehaviour
                         if (i % gridManager.width != 0) { 
                             NextState = States[i - 1];
                         }
-                        break;
-                    case Action.None:
-                        NextState = States[i];
                         break;
 
                 }
@@ -140,22 +137,22 @@ public class Strategy_Policy : MonoBehaviour
         
         if (indexState % gridManager.width != 0 && bestReward < States[indexState - 1].reward + y * States[indexState - 1].value)
         {
-            bestReward = States[indexState - 1].value;
+            bestReward = States[indexState - 1].reward + y * States[indexState - 1].value;
             bestAction = Action.Left;
         }
         if ((indexState + 1)  % gridManager.width != 0 && bestReward < States[indexState + 1].reward + y * States[indexState + 1].value)
         {
-            bestReward = States[indexState + 1].value;
+            bestReward = States[indexState + 1].reward + y * States[indexState + 1].value;
             bestAction = Action.Right;
         }
         if (indexState - gridManager.height  >= 0 && bestReward < States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value)
         {
-            bestReward = States[indexState - gridManager.height].value;
+            bestReward = States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value;
             bestAction = Action.Down;
         }
         if (indexState + gridManager.height < States.Count && bestReward < States[indexState + gridManager.height].reward + y * States[indexState + gridManager.height].value)
         {
-            bestReward = States[indexState + gridManager.height].value;
+            bestReward = States[indexState + gridManager.height].reward + y * States[indexState + gridManager.height].value;
             bestAction = Action.Top;
         }
         Debug.Log("Best action for " + indexState + " reward:  " + bestReward + " action: " + bestAction);
