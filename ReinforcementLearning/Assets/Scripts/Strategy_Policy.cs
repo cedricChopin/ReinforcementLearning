@@ -2,39 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Assertions;
 
-
+public enum Action
+{
+    Top,
+    Down,
+    Left,
+    Right,
+    None
+}
 public class Strategy_Policy : MonoBehaviour
 {
-
+    
     public List<AI_Type.Action> WorldStates;
-    public int nbState = 16;
+    public int nbState;
 
     public bool policyStable = false;
-    public List<AI_Type.State> States;
-    public List<AI_Type.Action> PiStates;
+    public List<State> States;
     public List<float> rewards;
-    public List<AI_Type.Action> actions;
+    public List<float> values;
+    public List<Action> actions;
     public float y = 0.75f;
 
     public float delta = 0f;
     public float theta = 0.01f;
+    public GameObject Tiles;
+    private GridManager gridManager;
     // Start is called before the first frame update
     void Start()
     {
-
-
-        States = new List<AI_Type.State>();
+        gridManager = Tiles.GetComponent<GridManager>();
+        nbState = gridManager.width * gridManager.height;
+        States = new List<State>();
         for (int i = 0; i < nbState; i++)
         {
-            AI_Type.State state = new AI_Type.State();
-            state.totalReward = 0;
+            State state = new State();
+            state.reward = 0;
+            state.value = 0;
+            
+            
+            state.action = (Action)Random.Range(0, 4);
             if (i == nbState - 1)
             {
-                state.totalReward = 1;
+                state.reward = 1;
+                state.action = Action.None;
             }
-            
-            state.InitialAction = (AI_Type.Action)Random.Range(0, 4);
             States.Add(state);
             
         }
@@ -42,9 +55,11 @@ public class Strategy_Policy : MonoBehaviour
         {
             PolicyEvaluation();
             PolicyImprovement();
+            rewards = States.Select(p => p.reward).ToList();
+            actions = States.Select(p => p.action).ToList();
+            values = States.Select(p => p.value).ToList();
         }
-        rewards = States.Select(p => p.totalReward).ToList();
-        actions = States.Select(p => p.InitialAction).ToList();
+        
     }
 
     void PolicyEvaluation()
@@ -53,81 +68,91 @@ public class Strategy_Policy : MonoBehaviour
         do
         {
             delta = 0f;
-            for (int i = 0; i < States.Count; i++)
+            for (int i = 0; i < States.Count - 1; i++)
             {
-                float tmp = States[i].totalReward;
-                float rewardNextStep = 0;
-                switch (States[i].InitialAction)
+                float tmp = States[i].value;
+                State NextState = null;
+                switch (States[i].action)
                 {
-                    case AI_Type.Action.Top:
-                        if (i + 4 < States.Count)
-                            rewardNextStep = States[i + 4].totalReward;
+                    case Action.Top:
+                        if (i + gridManager.height < States.Count)
+                        {
+                            NextState = States[i + gridManager.height];
+                        }
                         break;
-                    case AI_Type.Action.Down:
-                        if (i - 4 >= 0)
-                            rewardNextStep = States[i - 4].totalReward;
+                    case Action.Down:
+                        if (i - gridManager.height >= 0)
+                        {
+                            NextState = States[i - gridManager.height];
+                        }
                         break;
-                    case AI_Type.Action.Right:
-                        if (i + 1 < States.Count)
-                            rewardNextStep = States[i + 1].totalReward;
+                    case Action.Right:
+                        if ((i +1) % gridManager.width != 0) { 
+                            NextState = States[i + 1];
+                        }
                         break;
-                    case AI_Type.Action.Left:
-                        if (i - 1 >= 0)
-                            rewardNextStep = States[i - 1].totalReward;
+                    case Action.Left:
+                        if (i % gridManager.width != 0) { 
+                            NextState = States[i - 1];
+                        }
+                        break;
+                    case Action.None:
+                        NextState = States[i];
                         break;
 
                 }
-                AI_Type.State stateTmp = States[i];
-                stateTmp.totalReward = tmp + y * rewardNextStep;
-                States[i] = stateTmp;
-                delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].totalReward));
+                
+                if (NextState != null)
+                {
+                    States[i].value = NextState.reward + y * NextState.value;
+                    delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].value));
+                }
 
             }
-        } while (delta > theta);
+        } while (delta >= theta);
     }
 
-    List<AI_Type.Action> PolicyImprovement()
+    void PolicyImprovement()
     {
         policyStable = true;
         Debug.Log("Training");
-        for (int i = 0; i < nbState; i++)
+        for (int i = 0; i < States.Count - 1; i++)
         {
-            AI_Type.Action temp = States[i].InitialAction;
-            AI_Type.State best = States[i];
-            best.InitialAction = getBestAction(i);
-            States[i] = best;
-            if(temp != States[i].InitialAction)
+            Action temp = States[i].action;
+            States[i].action = getBestAction(i);
+            if (temp != States[i].action)
             {
                 policyStable = false;
             }
         }
-        return PiStates;
     }
-    AI_Type.Action getBestAction(int indexState)
+    Action getBestAction(int indexState)
     {
         float bestReward = -1;
-        AI_Type.Action bestAction = AI_Type.Action.Down;
-        if (indexState - 1 >= 0 && bestReward < States[indexState - 1].totalReward)
+        Action bestAction = Action.None;
+        
+        if (indexState % gridManager.width != 0 && bestReward < States[indexState - 1].reward + y * States[indexState - 1].value)
         {
-            bestReward = States[indexState - 1].totalReward;
-            bestAction = AI_Type.Action.Left;
+            bestReward = States[indexState - 1].value;
+            bestAction = Action.Left;
         }
-        if (indexState + 1 < nbState && bestReward < States[indexState + 1].totalReward)
+        if ((indexState + 1)  % gridManager.width != 0 && bestReward < States[indexState + 1].reward + y * States[indexState + 1].value)
         {
-            bestReward = States[indexState + 1].totalReward;
-            bestAction = AI_Type.Action.Right;
+            bestReward = States[indexState + 1].value;
+            bestAction = Action.Right;
         }
-        if (indexState - 4 >= 0 && bestReward < States[indexState - 4].totalReward)
+        if (indexState - gridManager.height  >= 0 && bestReward < States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value)
         {
-            bestReward = States[indexState - 4].totalReward;
-            bestAction = AI_Type.Action.Down;
+            bestReward = States[indexState - gridManager.height].value;
+            bestAction = Action.Down;
         }
-        if (indexState + 4 < nbState && bestReward < States[indexState + 4].totalReward)
+        if (indexState + gridManager.height < States.Count && bestReward < States[indexState + gridManager.height].reward + y * States[indexState + gridManager.height].value)
         {
-            bestReward = States[indexState + 4].totalReward;
-            bestAction = AI_Type.Action.Top;
+            bestReward = States[indexState + gridManager.height].value;
+            bestAction = Action.Top;
         }
-
+        Debug.Log("Best action for " + indexState + " reward:  " + bestReward + " action: " + bestAction);
+        Assert.IsTrue(bestAction != Action.None);
         return bestAction;
     }
 

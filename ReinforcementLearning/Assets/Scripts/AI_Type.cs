@@ -17,6 +17,7 @@ using UnityEngine;
         public struct State
         {
             public float totalReward;
+            public float value;
             public Action InitialAction;
         }
 
