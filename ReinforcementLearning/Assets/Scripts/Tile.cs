@@ -5,7 +5,7 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     [SerializeField] private Color baseColor, offsetColor;
-    [SerializeField] private SpriteRenderer renderer;
+    [SerializeField] public SpriteRenderer renderer;
 
     private Color previousColor;
     public void Init(bool isOffset)
@@ -25,6 +25,10 @@ public class Tile : MonoBehaviour
         {
             previousColor = offsetColor;
             renderer.color = Color.red;
+        }
+        else if(renderer.color == Color.red)
+        {
+            renderer.color = Color.green;
         }
         else
         {

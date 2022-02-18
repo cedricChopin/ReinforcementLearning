@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -199,7 +199,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -613,12 +613,13 @@ MonoBehaviour:
   WorldStates: 
   nbState: 16
   policyStable: 0
-  PiStates: 
   rewards: []
+  values: []
   actions: 
   y: 0.75
   delta: 0
   theta: 0.01
+  Tiles: {fileID: 1444857956}
 --- !u!4 &1206361577
 Transform:
   m_ObjectHideFlags: 0
@@ -715,7 +716,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1284563054}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1206361576}
+        m_TargetAssemblyTypeName: Strategy_Policy, Assembly-CSharp
+        m_MethodName: PolicyIteration
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1284563054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -868,7 +881,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 8
   height: 8
-  tile: {fileID: 2353106617956481334, guid: c3cf9b5e93a03b44cb71214c12129310, type: 3}
+  tile: {fileID: 4132298375967044175, guid: d7dec594874ee644082b0daf1abc64c6, type: 3}
   camera: {fileID: 1430681976}
   parent: {fileID: 1444857958}
 --- !u!4 &1444857958
