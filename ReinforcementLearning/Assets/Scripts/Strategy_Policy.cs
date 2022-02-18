@@ -1,8 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Assertions;
+using TMPro;
 
 public enum Action
 {
@@ -35,21 +36,23 @@ public class Strategy_Policy : MonoBehaviour
         gridManager = Tiles.GetComponent<GridManager>();
         nbState = gridManager.width * gridManager.height;
         States = new List<State>();
-        for (int i = 0; i < nbState; i++)
+        for (int x = 0; x < gridManager.width; x++)
         {
-            State state = new State();
-            state.reward = 0;
-            state.value = 0;
-            
-            
-            state.action = (Action)Random.Range(0, 4);
-            if (i == nbState - 1)
+            for (int y = 0; y < gridManager.height; y++)
             {
-                state.reward = 1;
-                state.action = Action.None;
+                State state = new State();
+                state.reward = 0;
+                state.value = 0;
+                if (x + y * gridManager.height == nbState - 1)
+                {
+                    state.reward = 1;
+                    state.action = Action.None;
+                }
+
+                state.action = (Action)Random.Range(0, 4);
+                States.Add(state);
+
             }
-            States.Add(state);
-            
         }
 
         List<State> test = new List<State>();
@@ -57,16 +60,62 @@ public class Strategy_Policy : MonoBehaviour
         test.Add(States[States.Count - 3]);
         test.Add(States[States.Count - 6]);
 
-        ValueIteration();
-        /*while (policyStable == false)
+        //ValueIteration(States[States.Count - 2], test);
+        
+    }
+    public void PolicyIteration()
+    {
+        policyStable = false;
+        for (int x = 0; x < gridManager.width; x++)
+        {
+            
+            for (int y = 0; y < gridManager.height; y++)
+            {
+                States[x + y * gridManager.height].reward = 0f;
+                States[x + y * gridManager.height].value = 0f;
+                States[x + y * gridManager.height].action = (Action)Random.Range(0, 4);
+                if (gridManager.GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.green)
+                {
+                    States[x + y * gridManager.height].reward = 1;
+                    States[x + y * gridManager.height].action = Action.None;
+                }
+                else if (gridManager.GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.red)
+                {
+                    States[x + y * gridManager.height].reward = -1;
+                    States[x + y * gridManager.height].action = Action.None;
+                }
+
+            }
+        }
+        while (policyStable == false)
         {
             PolicyEvaluation();
             PolicyImprovement();
             rewards = States.Select(p => p.reward).ToList();
             actions = States.Select(p => p.action).ToList();
             values = States.Select(p => p.value).ToList();
-        }*/
-        
+        }
+    }
+
+    public void ChangeGrid()
+    {
+        for (int x = 0; x < gridManager.width; x++)
+        {
+            for (int y = 0; y < gridManager.height; y++)
+            {
+                Tile tile = gridManager.GetTileAtPosition(new Vector2(x, y));
+                if (States[x + y * gridManager.height].action == Action.Left)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "← \n" + States[x + y * gridManager.height].value.ToString("N3");
+                else if (States[x + y * gridManager.height].action == Action.Right)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "→ \n" + States[x + y * gridManager.height].value.ToString("N3");
+                else if (States[x + y * gridManager.height].action == Action.Top)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↑ \n" + States[x + y * gridManager.height].value.ToString("N3");
+                else if (States[x + y * gridManager.height].action == Action.Down)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↓ \n" + States[x + y * gridManager.height].value.ToString("N3");
+                else
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = States[x + y * gridManager.height].value.ToString("N3");
+            }
+        }
     }
 
     void PolicyEvaluation()
@@ -119,14 +168,16 @@ public class Strategy_Policy : MonoBehaviour
     void PolicyImprovement()
     {
         policyStable = true;
-        Debug.Log("Training");
-        for (int i = 0; i < States.Count - 1; i++)
+        for (int i = 0; i < States.Count; i++)
         {
             Action temp = States[i].action;
-            States[i].action = getBestAction(i);
-            if (temp != States[i].action)
+            if (temp != Action.None)
             {
-                policyStable = false;
+                States[i].action = getBestAction(i);
+                if (temp != States[i].action)
+                {
+                    policyStable = false;
+                }
             }
         }
     }
@@ -155,7 +206,6 @@ public class Strategy_Policy : MonoBehaviour
             bestReward = States[indexState + gridManager.height].reward + y * States[indexState + gridManager.height].value;
             bestAction = Action.Top;
         }
-        Debug.Log("Best action for " + indexState + " reward:  " + bestReward + " action: " + bestAction);
         Assert.IsTrue(bestAction != Action.None);
         return bestAction;
     }
