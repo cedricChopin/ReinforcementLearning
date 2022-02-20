@@ -443,7 +443,7 @@ PrefabInstance:
     - target: {fileID: 6988732002317083137, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
       propertyPath: policy
       value: 
-      objectReference: {fileID: 1206361576}
+      objectReference: {fileID: 1206361575}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
 --- !u!1 &1068697924
