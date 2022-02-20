@@ -13,6 +13,8 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private Transform parent;
 
+    [SerializeField] GameObject character;
+
     private Dictionary<Vector2, Tile> tilesDict;
 
     private Ray ray;

@@ -31,6 +31,9 @@ public class Strategy_Policy : MonoBehaviour
     public float theta = 0.01f;
     public GameObject Tiles;
     private GridManager gridManager;
+
+    [SerializeField] AI_Controller controller;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -178,12 +181,9 @@ public class Strategy_Policy : MonoBehaviour
         gridManager.InitGrid(ref States);
         do
         {
-
             delta = 0;
             for (int i = 0; i < States.Count - 1; i++)
             {
-
-
                 List<State> possibleState = new List<State>();
                 float tmp = States[i].value;
                 possibleState = GetPossibleActions(States[i]);
@@ -191,7 +191,7 @@ public class Strategy_Policy : MonoBehaviour
                     (States[i].value, States[i].action) = GetMaximumReward(possibleState);
                 delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].value));
             }
-            Debug.Log("delta : " + delta);
+            //Debug.Log("delta : " + delta);
         } while (delta > theta);
 
         gridManager.ChangeGrid(ref States);
