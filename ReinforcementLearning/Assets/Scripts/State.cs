@@ -7,10 +7,12 @@ public class State
     public float value;
     public float reward;
     public Action action;
+    public bool hasCaisse;
     public State()
     {
         value = 0;
         reward = 0;
-        action = Action.Down;
+        action = Action.None;
+        hasCaisse = false;
     }
 }

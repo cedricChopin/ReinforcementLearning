@@ -70,7 +70,7 @@ public class GridManager : MonoBehaviour
                 }
                 else if (GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.red)
                 {
-                    States[x + y * height].reward = -1;
+                    States[x + y * height].reward = 0.5f;
                     States[x + y * height].action = Action.None;
                 }
 

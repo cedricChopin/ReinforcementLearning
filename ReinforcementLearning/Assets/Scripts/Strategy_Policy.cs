@@ -32,12 +32,14 @@ public class Strategy_Policy : MonoBehaviour
     public GameObject Tiles;
     private GridManager gridManager;
 
-    [SerializeField] AI_Controller controller;
+    [SerializeField] GameObject AI_controller;
+    private AI_Controller controller;
 
     // Start is called before the first frame update
     void Start()
     {
         gridManager = Tiles.GetComponent<GridManager>();
+        controller = AI_controller.GetComponent<AI_Controller>();
         nbState = gridManager.width * gridManager.height;
         States = new List<State>();
         for (int x = 0; x < gridManager.width; x++)
@@ -45,24 +47,12 @@ public class Strategy_Policy : MonoBehaviour
             for (int y = 0; y < gridManager.height; y++)
             {
                 State state = new State();
-                state.reward = 0;
-                state.value = 0;
-                if (x + y * gridManager.height == nbState - 1)
-                {
-                    state.reward = 1;
-                    state.action = Action.None;
-                }
 
                 state.action = (Action)Random.Range(0, 4);
                 States.Add(state);
 
             }
         }
-
-        List<State> test = new List<State>();
-        test.Add(States[States.Count - 1]);
-        test.Add(States[States.Count - 3]);
-        test.Add(States[States.Count - 6]);
 
     }
     public void PolicyIteration()
@@ -91,36 +81,9 @@ public class Strategy_Policy : MonoBehaviour
             for (int i = 0; i < States.Count; i++)
             {
                 float tmp = States[i].value;
-                State NextState = null;
-                switch (States[i].action)
-                {
-                    case Action.Top:
-                        if (i + gridManager.height < States.Count)
-                        {
-                            NextState = States[i + gridManager.height];
-                        }
-                        break;
-                    case Action.Down:
-                        if (i - gridManager.height >= 0)
-                        {
-                            NextState = States[i - gridManager.height];
-                        }
-                        break;
-                    case Action.Right:
-                        if ((i + 1) % gridManager.width != 0)
-                        {
-                            NextState = States[i + 1];
-                        }
-                        break;
-                    case Action.Left:
-                        if (i % gridManager.width != 0)
-                        {
-                            NextState = States[i - 1];
-                        }
-                        break;
-
-                }
-
+                
+                State NextState = controller.getNextState(States[i], i);
+                   
                 if (NextState != null)
                 {
                     States[i].value = NextState.reward + y * NextState.value;
@@ -139,7 +102,7 @@ public class Strategy_Policy : MonoBehaviour
             Action temp = States[i].action;
             if (temp != Action.None && temp != Action.Win)
             {
-                States[i].action = getBestAction(i);
+                States[i].action = controller.getBestAction(i);
                 if (temp != States[i].action)
                 {
                     policyStable = false;
@@ -147,34 +110,7 @@ public class Strategy_Policy : MonoBehaviour
             }
         }
     }
-    Action getBestAction(int indexState)
-    {
-        float bestReward = -1;
-        Action bestAction = Action.None;
-
-        if (indexState % gridManager.width != 0 && bestReward < States[indexState - 1].reward + y * States[indexState - 1].value)
-        {
-            bestReward = States[indexState - 1].reward + y * States[indexState - 1].value;
-            bestAction = Action.Left;
-        }
-        if ((indexState + 1) % gridManager.width != 0 && bestReward < States[indexState + 1].reward + y * States[indexState + 1].value)
-        {
-            bestReward = States[indexState + 1].reward + y * States[indexState + 1].value;
-            bestAction = Action.Right;
-        }
-        if (indexState - gridManager.height >= 0 && bestReward < States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value)
-        {
-            bestReward = States[indexState - gridManager.height].reward + y * States[indexState - gridManager.height].value;
-            bestAction = Action.Down;
-        }
-        if (indexState + gridManager.height < States.Count && bestReward < States[indexState + gridManager.height].reward + y * States[indexState + gridManager.height].value)
-        {
-            bestReward = States[indexState + gridManager.height].reward + y * States[indexState + gridManager.height].value;
-            bestAction = Action.Top;
-        }
-        Assert.IsTrue(bestAction != Action.None);
-        return bestAction;
-    }
+    
 
     public void ValueIteration()
     {
@@ -184,79 +120,20 @@ public class Strategy_Policy : MonoBehaviour
             delta = 0;
             for (int i = 0; i < States.Count - 1; i++)
             {
-                List<State> possibleState = new List<State>();
+
                 float tmp = States[i].value;
-                possibleState = GetPossibleActions(States[i]);
+                List<State> possibleState = controller.GetPossibleActions(States[i]);
                 if (possibleState.Count > 0)
-                    (States[i].value, States[i].action) = GetMaximumReward(possibleState);
+                    (States[i].value, States[i].action) = controller.GetMaximumReward(possibleState);
                 delta = Mathf.Max(delta, Mathf.Abs(tmp - States[i].value));
             }
-            //Debug.Log("delta : " + delta);
         } while (delta > theta);
 
         gridManager.ChangeGrid(ref States);
     }
 
-    (float, Action) GetMaximumReward(List<State> states)
-    {
-        Action bestAction = new Action();
-        float value_reward = -10;
-        foreach (State s in states)
-        {
-            if (value_reward < y * s.value + s.reward)
-            {
-                value_reward = y * s.value + s.reward;
-                bestAction = s.action;
-            }
-        }
+    
 
-        return (value_reward, bestAction);
-    }
-
-    List<State> GetPossibleActions(State s)
-    {
-        List<State> possibleStates = new List<State>();
-        if (s.action == Action.None || s.action == Action.Win)
-        {
-            return possibleStates;
-        }
-        int index = States.IndexOf(s);
-        if (s.action != Action.None)
-        {
-            if (index + gridManager.height < States.Count && States[index + gridManager.height].action != Action.None)
-            {
-                State tmp = new State();
-                tmp.value = States[index + gridManager.height].value;
-                tmp.reward = States[index + gridManager.height].reward;
-                tmp.action = Action.Top;
-                possibleStates.Add(tmp);
-            }
-            if (index - gridManager.height >= 0 && States[index - gridManager.height].action != Action.None)
-            {
-                State tmp = new State();
-                tmp.value = States[index - gridManager.height].value;
-                tmp.reward = States[index - gridManager.height].reward;
-                tmp.action = Action.Down;
-                possibleStates.Add(tmp);
-            }
-            if ((index + 1) % gridManager.width != 0 && States[index + 1].action != Action.None)
-            {
-                State tmp = new State();
-                tmp.value = States[index + 1].value;
-                tmp.reward = States[index + 1].reward;
-                tmp.action = Action.Right;
-                possibleStates.Add(tmp);
-            }
-            if (index % gridManager.width != 0 && States[index - 1].action != Action.None)
-            {
-                State tmp = new State();
-                tmp.value = States[index - 1].value;
-                tmp.reward = States[index - 1].reward;
-                tmp.action = Action.Left;
-                possibleStates.Add(tmp);
-            }
-        }
-        return possibleStates;
-    }
+    
 
 }

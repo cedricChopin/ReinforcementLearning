@@ -302,6 +302,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 42566915}
   m_CullTransparentMesh: 1
+--- !u!1 &475698500 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5280631036603524367, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
+  m_PrefabInstance: {fileID: 795028331}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &475698501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475698500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04de7d85bf45d764a9b36433985849c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  way: []
+  policy: {fileID: 1206361576}
+  grid: {fileID: 1444857957}
+  activated: 0
 --- !u!1 &768784564
 GameObject:
   m_ObjectHideFlags: 0
@@ -443,8 +464,9 @@ PrefabInstance:
     - target: {fileID: 6988732002317083137, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
       propertyPath: policy
       value: 
-      objectReference: {fileID: 1206361575}
-    m_RemovedComponents: []
+      objectReference: {fileID: 1206361576}
+    m_RemovedComponents:
+    - {fileID: 6988732002317083137, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
 --- !u!1 &1068697924
 GameObject:
@@ -697,7 +719,7 @@ MonoBehaviour:
   delta: 0
   theta: 0.01
   Tiles: {fileID: 1444857956}
-  controller: {fileID: 6988732002317083137, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
+  AI_controller: {fileID: 475698500}
 --- !u!4 &1206361577
 Transform:
   m_ObjectHideFlags: 0
@@ -898,7 +920,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1090,7 +1112,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6988732002317083137, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
+      - m_Target: {fileID: 475698501}
         m_TargetAssemblyTypeName: AI_Controller, Assembly-CSharp
         m_MethodName: ActivatedAI
         m_Mode: 1
