@@ -105,8 +105,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseColor: {r: 1, g: 1, b: 1, a: 1}
   offsetColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
-  rewardColor: {r: 0, g: 1, b: 0.052682877, a: 0}
-  renderer: {fileID: 4475515571565832538}
+  rend: {fileID: 4475515571565832538}
 --- !u!61 &8862546351894909711
 BoxCollider2D:
   m_ObjectHideFlags: 0

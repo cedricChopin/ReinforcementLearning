@@ -5,34 +5,35 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     [SerializeField] private Color baseColor, offsetColor;
-    [SerializeField] public SpriteRenderer renderer;
+    [SerializeField] public SpriteRenderer rend;
 
     private Color previousColor;
     public void Init(bool isOffset)
     {
-        renderer.color = (isOffset) ? baseColor : offsetColor;
+        rend.color = (isOffset) ? baseColor : offsetColor;
     }
 
     private void OnMouseDown()
     {
-        if (renderer.color == baseColor)
+        //Cycle : Case normale - Case rouge (Obstacle) - Case Verte (Victoire)
+        if (rend.color == baseColor)
         {
             previousColor = baseColor;
-            renderer.color = Color.red;
+            rend.color = Color.red;
         }
 
-        else if(renderer.color == offsetColor)
+        else if(rend.color == offsetColor)
         {
             previousColor = offsetColor;
-            renderer.color = Color.red;
+            rend.color = Color.red;
         }
-        else if(renderer.color == Color.red)
+        else if(rend.color == Color.red)
         {
-            renderer.color = Color.green;
+            rend.color = Color.green;
         }
         else
         {
-            renderer.color = previousColor;
+            rend.color = previousColor;
         }
     }
 }

@@ -49,24 +49,23 @@ public class GridWorld_Controller : AI_Controller
         float bestReward = -1;
         Action bestAction = Action.None;
 
-        if (indexState % grid.width != 0 && bestReward < policy.States[indexState - 1].reward + policy.y * policy.States[indexState - 1].value)
+        if (isPossibleAction(Action.Left, indexState) && bestReward < calculateValue(indexState - 1))
         {
-            bestReward = policy.States[indexState - 1].reward + policy.y * policy.States[indexState - 1].value;
+            bestReward = calculateValue(indexState - 1);
             bestAction = Action.Left;
         }
-        if ((indexState + 1) % grid.width != 0 && bestReward < policy.States[indexState + 1].reward + policy.y * policy.States[indexState + 1].value)
+        if (isPossibleAction(Action.Right, indexState) && bestReward < calculateValue(indexState + 1))
         {
-            bestReward = policy.States[indexState + 1].reward + policy.y * policy.States[indexState + 1].value;
+            bestReward = calculateValue(indexState + 1);
             bestAction = Action.Right;
         }
-        if (indexState - grid.height >= 0 && bestReward < policy.States[indexState - grid.height].reward + policy.y * policy.States[indexState - grid.height].value)
+        if (isPossibleAction(Action.Down, indexState) && bestReward < calculateValue(indexState - grid.height))
         {
-            bestReward = policy.States[indexState - grid.height].reward + policy.y * policy.States[indexState - grid.height].value;
+            bestReward = calculateValue(indexState - grid.height);
             bestAction = Action.Down;
         }
-        if (indexState + grid.height < policy.States.Count && bestReward < policy.States[indexState + grid.height].reward + policy.y * policy.States[indexState + grid.height].value)
+        if (isPossibleAction(Action.Top, indexState) && bestReward < calculateValue(indexState + grid.height))
         {
-            bestReward = policy.States[indexState + grid.height].reward + policy.y * policy.States[indexState + grid.height].value;
             bestAction = Action.Top;
         }
         Assert.IsTrue(bestAction != Action.None);
@@ -76,42 +75,30 @@ public class GridWorld_Controller : AI_Controller
     public override List<State> GetPossibleActions(State s)
     {
         List<State> possibleStates = new List<State>();
-        if (s.action == Action.None || s.action == Action.Win)
-        {
-            return possibleStates;
-        }
         int index = policy.States.IndexOf(s);
         if (s.action != Action.None)
         {
-            if (index + grid.height < policy.States.Count && policy.States[index + grid.height].action != Action.None)
+            if (isPossibleAction(Action.Top, index))
             {
-                State tmp = new State();
-                tmp.value = policy.States[index + grid.height].value;
-                tmp.reward = policy.States[index + grid.height].reward;
+                State tmp = copyState(index + grid.height);
                 tmp.action = Action.Top;
                 possibleStates.Add(tmp);
             }
-            if (index - grid.height >= 0 && policy.States[index - grid.height].action != Action.None)
+            if (isPossibleAction(Action.Down, index))
             {
-                State tmp = new State();
-                tmp.value = policy.States[index - grid.height].value;
-                tmp.reward = policy.States[index - grid.height].reward;
+                State tmp = copyState(index - grid.height);
                 tmp.action = Action.Down;
                 possibleStates.Add(tmp);
             }
-            if ((index + 1) % grid.width != 0 && policy.States[index + 1].action != Action.None)
+            if (isPossibleAction(Action.Right, index))
             {
-                State tmp = new State();
-                tmp.value = policy.States[index + 1].value;
-                tmp.reward = policy.States[index + 1].reward;
+                State tmp = copyState(index + 1);
                 tmp.action = Action.Right;
                 possibleStates.Add(tmp);
             }
-            if (index % grid.width != 0 && policy.States[index - 1].action != Action.None)
+            if (isPossibleAction(Action.Left, index))
             {
-                State tmp = new State();
-                tmp.value = policy.States[index - 1].value;
-                tmp.reward = policy.States[index - 1].reward;
+                State tmp = copyState(index - 1);
                 tmp.action = Action.Left;
                 possibleStates.Add(tmp);
             }

@@ -9,26 +9,24 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private Tile tile;
 
-    [SerializeField] private Transform camera;
+    [SerializeField] private Transform cam;
 
     [SerializeField] private Transform parent;
 
-    [SerializeField] GameObject character;
-
     private Dictionary<Vector2, Tile> tilesDict;
-
-    private Ray ray;
-    private RaycastHit hit;
 
     private void Start()
     {
         GenerateGrid();
     }
 
+    /// <summary>
+    /// Génère une grille carrée de taille width * height
+    /// </summary>
     void GenerateGrid()
     {
         tilesDict = new Dictionary<Vector2, Tile>();
-        camera.position = new Vector3(width/2 - 0.5f, height/2 -0.5f, -10);
+        cam.position = new Vector3(width/2 - 0.5f, height/2 -0.5f, -10);
 
         for(int x = 0; x < width; x++)
         {
@@ -44,7 +42,11 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-
+    /// <summary>
+    /// Récupère la Tile correspondant à la position
+    /// </summary>
+    /// <param name="pos">Position à l'intérieure d'une Tile</param>
+    /// <returns></returns>
     public Tile GetTileAtPosition(Vector2 pos)
     {
         if (tilesDict.TryGetValue(pos, out var tile))
@@ -53,6 +55,10 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Initialise les etats a leur valeur de base en fonction de la grille actuelle
+    /// </summary>
+    /// <param name="States"></param>
     public void InitGrid(ref List<State> States)
     {
         for (int x = 0; x < width; x++)
@@ -63,14 +69,14 @@ public class GridManager : MonoBehaviour
                 States[x + y * height].reward = 0f;
                 States[x + y * height].value = 0f;
                 States[x + y * height].action = (Action)Random.Range(0, 4);
-                if (GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.green)
+                if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.green)
                 {
                     States[x + y * height].reward = 1;
                     States[x + y * height].action = Action.Win;
                 }
-                else if (GetTileAtPosition(new Vector2(x, y)).renderer.color == Color.red)
+                else if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.red)
                 {
-                    States[x + y * height].reward = 0.5f;
+                    States[x + y * height].reward = -1f;
                     States[x + y * height].action = Action.None;
                 }
 

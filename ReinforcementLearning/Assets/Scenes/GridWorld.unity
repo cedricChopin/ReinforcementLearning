@@ -709,8 +709,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4418f06ac3ae44e40851e392f61528b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WorldStates: 
-  nbState: 16
   policyStable: 0
   rewards: []
   values: []
@@ -982,9 +980,8 @@ MonoBehaviour:
   width: 8
   height: 8
   tile: {fileID: 4132298375967044175, guid: d7dec594874ee644082b0daf1abc64c6, type: 3}
-  camera: {fileID: 1430681976}
+  cam: {fileID: 1430681976}
   parent: {fileID: 1444857958}
-  character: {fileID: 5280631036603524367, guid: 212bb2f8545bba84294f8fa677fb2f9e, type: 3}
 --- !u!4 &1444857958
 Transform:
   m_ObjectHideFlags: 0

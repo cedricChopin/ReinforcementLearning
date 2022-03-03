@@ -5,6 +5,9 @@ using System.Linq;
 using UnityEngine.Assertions;
 using TMPro;
 
+/// <summary>
+/// Actions possibles dans le monde
+/// </summary>
 public enum Action
 {
     Top,
@@ -17,20 +20,17 @@ public enum Action
 public class Strategy_Policy : MonoBehaviour
 {
 
-    public List<AI_Type.Action> WorldStates;
-    public int nbState;
-
     public bool policyStable = false;
     public List<State> States;
-    public List<float> rewards;
-    public List<float> values;
-    public List<Action> actions;
-    public float y = 0.75f;
+    public List<float> rewards; // Liste des rewards, sert au debug
+    public List<float> values; // Liste des values, sert au debug
+    public List<Action> actions; // Liste des actions, sert au debug
+    public float y = 0.75f; //Gamma
 
-    public float delta = 0f;
+    public float delta = 0f; 
     public float theta = 0.01f;
-    public GameObject Tiles;
-    private GridManager gridManager;
+    public GameObject Tiles; // Toutes les tuiles
+    private GridManager gridManager; //Gestion de la grille
 
     [SerializeField] GameObject AI_controller;
     private AI_Controller controller;
@@ -40,7 +40,6 @@ public class Strategy_Policy : MonoBehaviour
     {
         gridManager = Tiles.GetComponent<GridManager>();
         controller = AI_controller.GetComponent<AI_Controller>();
-        nbState = gridManager.width * gridManager.height;
         States = new List<State>();
         for (int x = 0; x < gridManager.width; x++)
         {
@@ -55,6 +54,10 @@ public class Strategy_Policy : MonoBehaviour
         }
 
     }
+
+    /// <summary>
+    /// Algorithme de PolicyIteration
+    /// </summary>
     public void PolicyIteration()
     {
         policyStable = false;
@@ -72,7 +75,9 @@ public class Strategy_Policy : MonoBehaviour
 
 
     
-
+    /// <summary>
+    /// Evaluation de la Policy
+    /// </summary>
     void PolicyEvaluation()
     {
         do
@@ -93,7 +98,9 @@ public class Strategy_Policy : MonoBehaviour
             }
         } while (delta >= theta);
     }
-
+    /// <summary>
+    /// Amélioration des actions
+    /// </summary>
     void PolicyImprovement()
     {
         policyStable = true;
@@ -111,7 +118,9 @@ public class Strategy_Policy : MonoBehaviour
         }
     }
     
-
+    /// <summary>
+    /// Algorithme de ValueIteration
+    /// </summary>
     public void ValueIteration()
     {
         gridManager.InitGrid(ref States);
