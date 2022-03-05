@@ -147,9 +147,9 @@ public class AI_Controller : MonoBehaviour
     public State copyState(int index)
     {
         State res = new State();
-        res.value = policy.States[index + 1].value;
-        res.reward = policy.States[index + 1].reward;
-        res.hasCaisse = policy.States[index + 1].hasCaisse;
+        res.value = policy.States[index].value;
+        res.reward = policy.States[index].reward;
+        res.hasCaisse = policy.States[index].hasCaisse;
         return res;
     }
 
