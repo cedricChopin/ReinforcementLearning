@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+public enum GameMode
+{
+    GridWorld, Sokoban
+}
+
 public class GridManager : MonoBehaviour
 {
+
     [SerializeField] public int width, height;
 
     [SerializeField] private Tile tile;
@@ -13,11 +19,16 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private Transform parent;
 
+    public List<GameObject> listCaisse;
+
+    public GameMode mode = GameMode.GridWorld;
+
     private Dictionary<Vector2, Tile> tilesDict;
 
     private void Start()
     {
         GenerateGrid();
+        listCaisse = new List<GameObject>();
     }
 
     /// <summary>

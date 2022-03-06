@@ -106,6 +106,8 @@ MonoBehaviour:
   baseColor: {r: 1, g: 1, b: 1, a: 1}
   offsetColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
   rend: {fileID: 4475515571565832538}
+  caisse: {fileID: 2139364542251118719, guid: f8763b8df2139da4a802df0c7113c3bb, type: 3}
+  mode: 0
 --- !u!61 &8862546351894909711
 BoxCollider2D:
   m_ObjectHideFlags: 0
