@@ -13,12 +13,13 @@ public class AI_Controller : MonoBehaviour
     [SerializeField]
     private bool activated = false; //True si elle a encore des actions à effectuée
 
-    float time = 2f; //Temps entre deux mouvements
+    float time = 1f; //Temps entre deux mouvements
     int i = 0;
     bool move = false;
 
     public void Start()
     {
+        way = new List<Vector2>();
         transform.position = grid.GetTileAtPosition(new Vector2(0,0)).transform.position;
         currentPos = Vector2.zero;
     }
@@ -29,14 +30,14 @@ public class AI_Controller : MonoBehaviour
         {
             time -= Time.deltaTime;
             if (move)
-                transform.position = Vector3.Lerp(transform.position, new Vector3(way[i].x, way[i].y, 0), Time.deltaTime * time);
+                transform.position = Vector3.Lerp(transform.position, new Vector3(way[i].x, way[i].y, 0), Time.deltaTime * 3);
 
             if (Vector3.Distance(transform.position, way[i]) < 0.02 && move)
                 move = false;
             if (time < 0 && i < way.Count)
             {
                 //transform.position = way[i];
-                time = 2f;
+                time = 1f;
                 i++;
                 move = true;
 
