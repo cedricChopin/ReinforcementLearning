@@ -25,6 +25,8 @@ public class GridManager : MonoBehaviour
 
     private Dictionary<Vector2, Tile> tilesDict;
 
+    public List<State> States;
+
     private void Start()
     {
         GenerateGrid();
@@ -38,8 +40,8 @@ public class GridManager : MonoBehaviour
     {
         tilesDict = new Dictionary<Vector2, Tile>();
         cam.position = new Vector3(width/2 - 0.5f, height/2 -0.5f, -10);
-
-        for(int x = 0; x < width; x++)
+        States = new List<State>();
+        for (int x = 0; x < width; x++)
         {
             for(int y = 0; y < height; y++)
             {
@@ -50,6 +52,11 @@ public class GridManager : MonoBehaviour
                 spamedTile.name = $"Tile ({x})({y})";
 
                 tilesDict[new Vector2(x, y)] = spamedTile;
+
+                State state = new State();
+
+                state.action = (Action)Random.Range(0, 4);
+                States.Add(state);
             }
         }
     }
@@ -70,7 +77,7 @@ public class GridManager : MonoBehaviour
     /// Initialise les etats a leur valeur de base en fonction de la grille actuelle
     /// </summary>
     /// <param name="States"></param>
-    public void InitGrid(ref List<State> States)
+    public void InitGrid()
     {
         for (int x = 0; x < width; x++)
         {
@@ -95,7 +102,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void ChangeGrid(ref List<State> States)
+    public void ChangeGrid()
     {
         for (int x = 0; x < width; x++)
         {

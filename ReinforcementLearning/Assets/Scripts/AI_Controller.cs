@@ -64,7 +64,7 @@ public class AI_Controller : MonoBehaviour
     {
         way = new List<Vector2>();
         
-        State currentState = policy.States[(int)currentPos.x + (int)currentPos.y * grid.height];
+        State currentState = grid.States[(int)currentPos.x + (int)currentPos.y * grid.height];
 
         while(currentState.action != Action.Win)
         {
@@ -84,7 +84,7 @@ public class AI_Controller : MonoBehaviour
                     break;
             }
             way.Add(currentPos);
-            currentState = policy.States[(int)currentPos.x + (int)currentPos.y * grid.height];
+            currentState = grid.States[(int)currentPos.x + (int)currentPos.y * grid.height];
         }
     }
     /// <summary>
@@ -93,21 +93,21 @@ public class AI_Controller : MonoBehaviour
     /// <param name="actualState">Etat actuel</param>
     /// <param name="x">Indice de l'etat actuel dans la liste d'etats</param>
     /// <returns></returns>
-    public  virtual State getNextState(State actualState, int x) { return null; }
+    public  virtual State getNextState(State actualState, Action action) { return null; }
 
     /// <summary>
     /// Retourne la meilleure action
     /// </summary>
     /// <param name="indexState">Indice de l'etat actuel</param>
     /// <returns></returns>
-    public virtual Action getBestAction(int indexState){ return Action.None; }
+    public virtual Action getBestAction(State state, List<State> lstState) { return Action.None; }
 
     /// <summary>
     /// Retourne les actions possibles à partir de l'etat actuel
     /// </summary>
     /// <param name="s">Etat actuel</param>
     /// <returns></returns>
-    public virtual List<State> GetPossibleActions(State s) { return null; }
+    public virtual List<State> GetPossibleActions(State s, List<State> lstState) { return null; }
 
     /// <summary>
     /// Retourne l'etat possédant la reward la plus haute
@@ -137,7 +137,7 @@ public class AI_Controller : MonoBehaviour
     /// <returns></returns>
     public float calculateValue(int index)
     {
-        return policy.States[index].reward + policy.y * policy.States[index].value;
+        return grid.States[index].reward + policy.y * grid.States[index].value;
     }
 
     /// <summary>
@@ -145,12 +145,12 @@ public class AI_Controller : MonoBehaviour
     /// </summary>
     /// <param name="index">Indice de l'etat a copié</param>
     /// <returns></returns>
-    public State copyState(int index)
+    public State copyState(int index, List<State> lstState)
     {
         State res = new State();
-        res.value = policy.States[index].value;
-        res.reward = policy.States[index].reward;
-        res.hasCaisse = policy.States[index].hasCaisse;
+        res.value = lstState[index].value;
+        res.reward = lstState[index].reward;
+        res.hasCaisse = lstState[index].hasCaisse;
         return res;
     }
 
@@ -160,30 +160,8 @@ public class AI_Controller : MonoBehaviour
     /// <param name="action">Action probable</param>
     /// <param name="index">Indice de l'etat actuel</param>
     /// <returns></returns>
-    public bool isPossibleAction(Action action, int index)
-    {
-        if (index < 0 || index >= policy.States.Count)
-            return false;
-        bool isPossible = false;
-        switch (action)
-        {
-            case Action.Top:
-                isPossible = index + grid.height < policy.States.Count && policy.States[index + grid.height].action != Action.None;
-                break;
-            case Action.Left:
-                isPossible = index % grid.width != 0 && policy.States[index - 1].action != Action.None;
-                break;
-            case Action.Down:
-                isPossible = index - grid.height >= 0 && policy.States[index - grid.height].action != Action.None;
-                break;
-            case Action.Right:
-                isPossible = (index + 1) % grid.width != 0 && policy.States[index + 1].action != Action.None;
-                break;
-
-        }
-
-        return isPossible;
-    }
+    public virtual bool isPossibleAction(State state, Action action, List<State> lstState) { return false; }
+    
 
     
 

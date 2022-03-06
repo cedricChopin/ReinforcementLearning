@@ -7,33 +7,34 @@ public class GridWorld_Controller : AI_Controller
 {
 
 
-    public override State getNextState(State actualState, int x)
+    public override State getNextState(State actualState, Action action)
     {
         State NextState = null;
-        switch (actualState.action)
+        int x = grid.States.IndexOf(actualState);
+        switch (action)
         {
             case Action.Top:
-                if (x + grid.height < policy.States.Count)
+                if (x + grid.height < grid.States.Count)
                 {
-                    NextState = policy.States[x + grid.height];
+                    NextState = grid.States[x + grid.height];
                 }
                 break;
             case Action.Down:
                 if (x - grid.height >= 0)
                 {
-                    NextState = policy.States[x - grid.height];
+                    NextState = grid.States[x - grid.height];
                 }
                 break;
             case Action.Right:
                 if ((x + 1) % grid.width != 0)
                 {
-                    NextState = policy.States[x + 1];
+                    NextState = grid.States[x + 1];
                 }
                 break;
             case Action.Left:
                 if (x % grid.width != 0)
                 {
-                    NextState = policy.States[x - 1];
+                    NextState = grid.States[x - 1];
                 }
                 break;
 
@@ -44,27 +45,54 @@ public class GridWorld_Controller : AI_Controller
 
     }
 
-    public override Action getBestAction(int indexState)
+    public override bool isPossibleAction(State state, Action action, List<State> lstState)
+    {
+        int index = lstState.IndexOf(state);
+        if (index < 0 || index >= grid.States.Count)
+            return false;
+        bool isPossible = false;
+        switch (action)
+        {
+            case Action.Top:
+                isPossible = index + grid.height < lstState.Count && lstState[index + grid.height].action != Action.None;
+                break;
+            case Action.Left:
+                isPossible = index % grid.width != 0 && lstState[index - 1].action != Action.None;
+                break;
+            case Action.Down:
+                isPossible = index - grid.height >= 0 && lstState[index - grid.height].action != Action.None;
+                break;
+            case Action.Right:
+                isPossible = (index + 1) % grid.width != 0 && lstState[index + 1].action != Action.None;
+                break;
+
+        }
+
+        return isPossible;
+    }
+
+    public override Action getBestAction(State state, List<State> lstState)
     {
         float bestReward = -1;
+        int indexState = grid.States.IndexOf(state);
         Action bestAction = Action.None;
 
-        if (isPossibleAction(Action.Left, indexState) && bestReward < calculateValue(indexState - 1))
+        if (isPossibleAction(state, Action.Left, lstState) && bestReward < calculateValue(indexState - 1))
         {
             bestReward = calculateValue(indexState - 1);
             bestAction = Action.Left;
         }
-        if (isPossibleAction(Action.Right, indexState) && bestReward < calculateValue(indexState + 1))
+        if (isPossibleAction(state, Action.Right, lstState) && bestReward < calculateValue(indexState + 1))
         {
             bestReward = calculateValue(indexState + 1);
             bestAction = Action.Right;
         }
-        if (isPossibleAction(Action.Down, indexState) && bestReward < calculateValue(indexState - grid.height))
+        if (isPossibleAction(state, Action.Down, lstState) && bestReward < calculateValue(indexState - grid.height))
         {
             bestReward = calculateValue(indexState - grid.height);
             bestAction = Action.Down;
         }
-        if (isPossibleAction(Action.Top, indexState) && bestReward < calculateValue(indexState + grid.height))
+        if (isPossibleAction(state, Action.Top, lstState) && bestReward < calculateValue(indexState + grid.height))
         {
             bestAction = Action.Top;
         }
@@ -72,33 +100,33 @@ public class GridWorld_Controller : AI_Controller
         return bestAction;
     }
 
-    public override List<State> GetPossibleActions(State s)
+    public override List<State> GetPossibleActions(State s, List<State> lstState)
     {
         List<State> possibleStates = new List<State>();
-        int index = policy.States.IndexOf(s);
+        int index = grid.States.IndexOf(s);
         if (s.action != Action.None && s.action != Action.Win)
         {
-            if (isPossibleAction(Action.Top, index))
+            if (isPossibleAction(s, Action.Top, lstState))
             {
-                State tmp = copyState(index + grid.height);
+                State tmp = copyState(index + grid.height, lstState);
                 tmp.action = Action.Top;
                 possibleStates.Add(tmp);
             }
-            if (isPossibleAction(Action.Down, index))
+            if (isPossibleAction(s, Action.Down, lstState))
             {
-                State tmp = copyState(index - grid.height);
+                State tmp = copyState(index - grid.height, lstState);
                 tmp.action = Action.Down;
                 possibleStates.Add(tmp);
             }
-            if (isPossibleAction(Action.Right, index))
+            if (isPossibleAction(s, Action.Right, lstState))
             {
-                State tmp = copyState(index + 1);
+                State tmp = copyState(index + 1, lstState);
                 tmp.action = Action.Right;
                 possibleStates.Add(tmp);
             }
-            if (isPossibleAction(Action.Left, index))
+            if (isPossibleAction(s, Action.Left, lstState))
             {
-                State tmp = copyState(index - 1);
+                State tmp = copyState(index - 1, lstState);
                 tmp.action = Action.Left;
                 possibleStates.Add(tmp);
             }
