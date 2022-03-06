@@ -76,7 +76,7 @@ public class GridWorld_Controller : AI_Controller
     {
         List<State> possibleStates = new List<State>();
         int index = policy.States.IndexOf(s);
-        if (s.action != Action.None)
+        if (s.action != Action.None && s.action != Action.Win)
         {
             if (isPossibleAction(Action.Top, index))
             {
