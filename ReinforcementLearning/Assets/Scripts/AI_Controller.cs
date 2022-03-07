@@ -63,8 +63,9 @@ public class AI_Controller : MonoBehaviour
     public void LaunchAI()
     {
         way = new List<Vector2>();
-        
-        State currentState = grid.States[(int)currentPos.x + (int)currentPos.y * grid.height];
+        currentPos.x = (int)transform.position.x;
+        currentPos.y = (int)transform.position.y;
+        State currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
 
         while(currentState.action != Action.Win)
         {
@@ -84,7 +85,7 @@ public class AI_Controller : MonoBehaviour
                     break;
             }
             way.Add(currentPos);
-            currentState = grid.States[(int)currentPos.x + (int)currentPos.y * grid.height];
+            currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
         }
     }
     /// <summary>
@@ -100,14 +101,22 @@ public class AI_Controller : MonoBehaviour
     /// </summary>
     /// <param name="indexState">Indice de l'etat actuel</param>
     /// <returns></returns>
-    public virtual Action getBestAction(State state, List<State> lstState) { return Action.None; }
+    public virtual Action getBestAction(State state, List<List<State>> lstState) { return Action.None; }
 
     /// <summary>
     /// Retourne les actions possibles à partir de l'etat actuel
     /// </summary>
     /// <param name="s">Etat actuel</param>
     /// <returns></returns>
-    public virtual List<State> GetPossibleActions(State s, List<State> lstState) { return null; }
+    public virtual List<State> GetPossibleActions(State s, List<List<State>> lstState) { return null; }
+
+    /// <summary>
+    /// Renvoie si l'action est possible à l'indice donné
+    /// </summary>
+    /// <param name="action">Action probable</param>
+    /// <param name="index">Indice de l'etat actuel</param>
+    /// <returns></returns>
+    public virtual bool isPossibleAction(State state, Action action, List<List<State>> lstState) { return false; }
 
     /// <summary>
     /// Retourne l'etat possédant la reward la plus haute
@@ -120,9 +129,9 @@ public class AI_Controller : MonoBehaviour
         float value_reward = -10;
         foreach (State s in states)
         {
-            if (value_reward < policy.y * s.value + s.reward)
+            if (value_reward < policy.gamma * s.value + s.reward)
             {
-                value_reward = policy.y * s.value + s.reward;
+                value_reward = policy.gamma * s.value + s.reward;
                 bestAction = s.action;
             }
         }
@@ -135,9 +144,9 @@ public class AI_Controller : MonoBehaviour
     /// </summary>
     /// <param name="index">Indice de l'etat actuel</param>
     /// <returns></returns>
-    public float calculateValue(int index)
+    public float calculateValue(State state)
     {
-        return grid.States[index].reward + policy.y * grid.States[index].value;
+        return state.reward + policy.gamma * state.value;
     }
 
     /// <summary>
@@ -145,22 +154,16 @@ public class AI_Controller : MonoBehaviour
     /// </summary>
     /// <param name="index">Indice de l'etat a copié</param>
     /// <returns></returns>
-    public State copyState(int index, List<State> lstState)
+    public State copyState(State state)
     {
         State res = new State();
-        res.value = lstState[index].value;
-        res.reward = lstState[index].reward;
-        res.hasCaisse = lstState[index].hasCaisse;
+        res.value = state.value;
+        res.reward = state.reward;
+        res.hasCaisse = state.hasCaisse;
         return res;
     }
 
-    /// <summary>
-    /// Renvoie si l'action est possible à l'indice donné
-    /// </summary>
-    /// <param name="action">Action probable</param>
-    /// <param name="index">Indice de l'etat actuel</param>
-    /// <returns></returns>
-    public virtual bool isPossibleAction(State state, Action action, List<State> lstState) { return false; }
+    
     
 
     

@@ -25,7 +25,7 @@ public class GridManager : MonoBehaviour
 
     private Dictionary<Vector2, Tile> tilesDict;
 
-    public List<State> States;
+    public List<List<State>> States;
 
     private void Start()
     {
@@ -40,9 +40,10 @@ public class GridManager : MonoBehaviour
     {
         tilesDict = new Dictionary<Vector2, Tile>();
         cam.position = new Vector3(width/2 - 0.5f, height/2 -0.5f, -10);
-        States = new List<State>();
+        States = new List<List<State>>(width);
         for (int x = 0; x < width; x++)
         {
+            States.Add(new List<State>());
             for(int y = 0; y < height; y++)
             {
                 var spamedTile = Instantiate(tile, new Vector3(x, y), Quaternion.identity);
@@ -56,7 +57,8 @@ public class GridManager : MonoBehaviour
                 State state = new State();
 
                 state.action = (Action)Random.Range(0, 4);
-                States.Add(state);
+                state.pos = new Vector2(x, y);
+                States[x].Add(state);
             }
         }
     }
@@ -84,18 +86,18 @@ public class GridManager : MonoBehaviour
 
             for (int y = 0; y < height; y++)
             {
-                States[x + y * height].reward = 0f;
-                States[x + y * height].value = 0f;
-                States[x + y * height].action = (Action)Random.Range(0, 4);
+                States[x][y].reward = 0f;
+                States[x][y].value = 0f;
+                States[x][y].action = (Action)Random.Range(0, 4);
                 if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.green)
                 {
-                    States[x + y * height].reward = 1;
-                    States[x + y * height].action = Action.Win;
+                    States[x][y].reward = 1;
+                    States[x][y].action = Action.Win;
                 }
                 else if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.red)
                 {
-                    States[x + y * height].reward = -1f;
-                    States[x + y * height].action = Action.None;
+                    States[x][y].reward = -1f;
+                    States[x][y].action = Action.None;
                 }
 
             }
@@ -109,16 +111,16 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Tile tile = GetTileAtPosition(new Vector2(x, y));
-                if (States[x + y * height].action == Action.Left)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "← \n" + States[x + y * height].value.ToString("N3");
-                else if (States[x + y * height].action == Action.Right)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "→ \n" + States[x + y * height].value.ToString("N3");
-                else if (States[x + y * height].action == Action.Top)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↑ \n" + States[x + y * height].value.ToString("N3");
-                else if (States[x + y * height].action == Action.Down)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↓ \n" + States[x + y * height].value.ToString("N3");
+                if (States[x][y].action == Action.Left)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "← \n" + States[x][y].value.ToString("N3");
+                else if (States[x][y].action == Action.Right)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "→ \n" + States[x][y].value.ToString("N3");
+                else if (States[x][y].action == Action.Top)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↑ \n" + States[x][y].value.ToString("N3");
+                else if (States[x][y].action == Action.Down)
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↓ \n" + States[x][y].value.ToString("N3");
                 else
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = States[x + y * height].value.ToString("N3");
+                    tile.GetComponentInChildren<TextMeshProUGUI>().text = States[x][y].value.ToString("N3");
             }
         }
     }

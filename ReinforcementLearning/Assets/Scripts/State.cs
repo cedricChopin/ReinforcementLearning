@@ -8,11 +8,13 @@ public class State
     public float reward;
     public Action action;
     public bool hasCaisse;
+    public Vector2 pos;
     public State()
     {
         value = 0;
         reward = 0;
         action = Action.None;
         hasCaisse = false;
+        pos = Vector2.zero;
     }
 }

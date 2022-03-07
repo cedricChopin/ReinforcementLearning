@@ -21,11 +21,7 @@ public class Strategy_Policy : MonoBehaviour
 {
 
     public bool policyStable = false;
-    
-    public List<float> rewards; // Liste des rewards, sert au debug
-    public List<float> values; // Liste des values, sert au debug
-    public List<Action> actions; // Liste des actions, sert au debug
-    public float y = 0.75f; //Gamma
+    public float gamma = 0.75f; //Gamma
 
     public float delta = 0f; 
     public float theta = 0.01f;
@@ -55,9 +51,6 @@ public class Strategy_Policy : MonoBehaviour
         {
             PolicyEvaluation();
             PolicyImprovement();
-            rewards = gridManager.States.Select(p => p.reward).ToList();
-            actions = gridManager.States.Select(p => p.action).ToList();
-            values = gridManager.States.Select(p => p.value).ToList();
         }
         gridManager.ChangeGrid();
     }
@@ -72,16 +65,19 @@ public class Strategy_Policy : MonoBehaviour
         do
         {
             delta = 0f;
-            for (int i = 0; i < gridManager.States.Count; i++)
+            for (int x = 0; x < gridManager.width; x++)
             {
-                float tmp = gridManager.States[i].value;
-                
-                State NextState = controller.getNextState(gridManager.States[i], gridManager.States[i].action);
-                   
-                if (NextState != null)
+                for (int y = 0; y < gridManager.height; y++)
                 {
-                    gridManager.States[i].value = NextState.reward + y * NextState.value;
-                    delta = Mathf.Max(delta, Mathf.Abs(tmp - gridManager.States[i].value));
+                    float tmp = gridManager.States[x][y].value;
+
+                    State NextState = controller.getNextState(gridManager.States[x][y], gridManager.States[x][y].action);
+
+                    if (NextState != null)
+                    {
+                        gridManager.States[x][y].value = NextState.reward + gamma * NextState.value;
+                        delta = Mathf.Max(delta, Mathf.Abs(tmp - gridManager.States[x][y].value));
+                    }
                 }
 
             }
@@ -93,15 +89,18 @@ public class Strategy_Policy : MonoBehaviour
     void PolicyImprovement()
     {
         policyStable = true;
-        for (int i = 0; i < gridManager.States.Count; i++)
+        for (int x = 0; x < gridManager.width; x++)
         {
-            Action temp = gridManager.States[i].action;
-            if (temp != Action.None && temp != Action.Win)
+            for (int y = 0; y < gridManager.height; y++)
             {
-                gridManager.States[i].action = controller.getBestAction(gridManager.States[i], gridManager.States);
-                if (temp != gridManager.States[i].action)
+                Action temp = gridManager.States[x][y].action;
+                if (temp != Action.None && temp != Action.Win)
                 {
-                    policyStable = false;
+                    gridManager.States[x][y].action = controller.getBestAction(gridManager.States[x][y], gridManager.States);
+                    if (temp != gridManager.States[x][y].action)
+                    {
+                        policyStable = false;
+                    }
                 }
             }
         }
@@ -116,14 +115,17 @@ public class Strategy_Policy : MonoBehaviour
         do
         {
             delta = 0;
-            for (int i = 0; i < gridManager.States.Count; i++)
+            for (int x = 0; x < gridManager.width; x++)
             {
+                for (int y = 0; y < gridManager.height; y++)
+                {
 
-                float tmp = gridManager.States[i].value;
-                List<State> possibleState = controller.GetPossibleActions(gridManager.States[i], gridManager.States);
-                if (possibleState.Count > 0)
-                    (gridManager.States[i].value, gridManager.States[i].action) = controller.GetMaximumReward(possibleState);
-                delta = Mathf.Max(delta, Mathf.Abs(tmp - gridManager.States[i].value));
+                    float tmp = gridManager.States[x][y].value;
+                    List<State> possibleState = controller.GetPossibleActions(gridManager.States[x][y], gridManager.States);
+                    if (possibleState.Count > 0)
+                        (gridManager.States[x][y].value, gridManager.States[x][y].action) = controller.GetMaximumReward(possibleState);
+                    delta = Mathf.Max(delta, Mathf.Abs(tmp - gridManager.States[x][y].value));
+                }
             }
         } while (delta > theta);
 

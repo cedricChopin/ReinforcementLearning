@@ -8,7 +8,6 @@ using TMPro;
 public class MonteCarlo : MonoBehaviour
 {
 
-    public List<State> States;
     public float y = 0.75f; //Gamma
 
     public float delta = 0f; 
@@ -24,7 +23,6 @@ public class MonteCarlo : MonoBehaviour
     {
         gridManager = Tiles.GetComponent<GridManager>();
         controller = AI_controller.GetComponent<AI_Controller>();
-        var episode = generate_random_episode();
 
     }
 
@@ -38,10 +36,16 @@ public class MonteCarlo : MonoBehaviour
     }
 
 
+    public void first_visit_mc()
+    {
+        gridManager.InitGrid();
+        var episode = generate_random_episode();
+    }
+
     List<State> generate_random_episode()
     {
         List<State> episode = new List<State>();
-        bool done = false;
+        /*bool done = false;
         int randState = Random.Range(0, gridManager.States.Count);
         State current_state = gridManager.States[randState];
         current_state.value = -1;
@@ -61,7 +65,7 @@ public class MonteCarlo : MonoBehaviour
                 done = true;
             }
             current_state = nextState;
-        }
+        }*/
 
         return episode;
     }
