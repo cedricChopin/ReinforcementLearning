@@ -667,10 +667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   policyStable: 0
-  rewards: []
-  values: []
-  actions: 
-  y: 0.75
+  gamma: 0.75
   delta: 0
   theta: 0.01
   Tiles: {fileID: 1614922037}
@@ -772,7 +769,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1999889553}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AI_Controller, Assembly-CSharp
         m_MethodName: ActivatedAI
         m_Mode: 1
@@ -939,7 +936,6 @@ MonoBehaviour:
   tile: {fileID: 4132298375967044175, guid: d7dec594874ee644082b0daf1abc64c6, type: 3}
   cam: {fileID: 1546359479}
   parent: {fileID: 1614922039}
-  listCaisse: []
   mode: 1
 --- !u!4 &1614922039
 Transform:
@@ -1172,13 +1168,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1999889552}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04de7d85bf45d764a9b36433985849c4, type: 3}
+  m_Script: {fileID: 11500000, guid: 13bfd0c9bc6518b49a9827955dd70431, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  way: []
-  policy: {fileID: 1350744616}
   grid: {fileID: 1614922038}
-  activated: 0
 --- !u!1 &2042350475
 GameObject:
   m_ObjectHideFlags: 0

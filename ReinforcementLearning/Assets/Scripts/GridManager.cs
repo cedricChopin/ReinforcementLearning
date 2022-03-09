@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private Transform parent;
 
-    public List<GameObject> listCaisse;
+    public Dictionary<GameObject, Vector2> listCaisse;
 
     public GameMode mode = GameMode.GridWorld;
 
@@ -30,7 +31,7 @@ public class GridManager : MonoBehaviour
     private void Start()
     {
         GenerateGrid();
-        listCaisse = new List<GameObject>();
+        listCaisse = new Dictionary<GameObject, Vector2>();
     }
 
     /// <summary>
@@ -70,9 +71,10 @@ public class GridManager : MonoBehaviour
     public Tile GetTileAtPosition(Vector2 pos)
     {
         if (tilesDict.TryGetValue(pos, out var tile))
+        {
             return tile;
-
-        return null;
+        }
+        else return null;
     }
 
     /// <summary>
@@ -123,5 +125,17 @@ public class GridManager : MonoBehaviour
                     tile.GetComponentInChildren<TextMeshProUGUI>().text = States[x][y].value.ToString("N3");
             }
         }
+    }
+
+    public void MoveCaisse(Vector2 pos, Vector2 newPos)
+    {
+        var caisse = listCaisse.FirstOrDefault(x=>x.Value == pos).Key;
+        listCaisse.Remove(caisse);
+        listCaisse.Add(caisse, newPos);
+        caisse.transform.position = newPos;
+        GetTileAtPosition(pos).gotCaisse = false;
+        GetTileAtPosition(newPos).gotCaisse = true;
+        States[(int)pos.x][(int)pos.y].hasCaisse = false;
+        States[(int)newPos.x][(int)newPos.y].hasCaisse = true;
     }
 }

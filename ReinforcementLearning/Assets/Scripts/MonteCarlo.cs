@@ -8,7 +8,7 @@ using TMPro;
 public class MonteCarlo : MonoBehaviour
 {
 
-    public float gamma = 0.75f; //Gamma
+    public float gamma = 0.9f; //Gamma
 
     public float delta = 0f;
     public float theta = 0.01f;
