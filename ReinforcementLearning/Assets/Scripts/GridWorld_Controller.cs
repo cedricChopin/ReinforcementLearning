@@ -65,7 +65,7 @@ public class GridWorld_Controller : AI_Controller
 
     public override Action getBestAction(State state, List<List<State>> lstState)
     {
-        float bestReward = -100;
+        float bestReward = float.MinValue;
         int x = (int)state.pos.x;
         int y = (int)state.pos.y;
         Action bestAction = Action.None;
