@@ -314,7 +314,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 475698500}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04de7d85bf45d764a9b36433985849c4, type: 3}
   m_Name: 
@@ -335,9 +335,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77ca1f168646c4c43bc3ea41befff18c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  y: 0.75
+  gamma: 0.75
   delta: 0
   theta: 0.01
+  nbIter: 10000
   Tiles: {fileID: 1444857956}
   AI_controller: {fileID: 475698500}
 --- !u!1 &768784564
@@ -727,10 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   policyStable: 0
-  rewards: []
-  values: []
-  actions: 
-  y: 0.75
+  gamma: 0.75
   delta: 0
   theta: 0.01
   Tiles: {fileID: 1444857956}

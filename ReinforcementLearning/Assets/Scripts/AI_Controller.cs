@@ -66,8 +66,8 @@ public class AI_Controller : MonoBehaviour
         currentPos.x = (int)transform.position.x;
         currentPos.y = (int)transform.position.y;
         State currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
-
-        while(currentState.action != Action.Win)
+        int nbIter = 0;
+        while(currentState.action != Action.Win && nbIter < 100)
         {
             switch (currentState.action)
             {
@@ -86,6 +86,7 @@ public class AI_Controller : MonoBehaviour
             }
             way.Add(currentPos);
             currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
+            nbIter++;
         }
     }
     /// <summary>
