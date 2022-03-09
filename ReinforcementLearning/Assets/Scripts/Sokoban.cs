@@ -32,7 +32,8 @@ public class Sokoban : MonoBehaviour
                     }
                 }
             }
-            else transform.position = newPos;
+            else if(grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red) 
+                transform.position = newPos;
         }
     }
 
@@ -52,7 +53,8 @@ public class Sokoban : MonoBehaviour
                     }
                 }
             }
-            else transform.position = newPos;
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
         }
     }
 
@@ -72,7 +74,8 @@ public class Sokoban : MonoBehaviour
                     }
                 }
             }
-            else transform.position = newPos;
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
         }
     }
 
@@ -92,7 +95,8 @@ public class Sokoban : MonoBehaviour
                     }
                 }
             }
-            else transform.position = newPos;
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
         }
     }
 }
