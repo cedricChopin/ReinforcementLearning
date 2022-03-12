@@ -119,6 +119,11 @@ public class AI_Controller : MonoBehaviour
     /// <returns></returns>
     public virtual bool isPossibleAction(State state, Action action, List<List<State>> lstState) { return false; }
 
+    public virtual bool isWin(State state)
+    {
+        return false;
+    }
+
     /// <summary>
     /// Retourne l'etat possédant la reward la plus haute
     /// </summary>

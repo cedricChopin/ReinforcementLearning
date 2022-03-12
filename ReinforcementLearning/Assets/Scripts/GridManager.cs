@@ -21,6 +21,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Transform parent;
 
     public Dictionary<GameObject, Vector2> listCaisse;
+    public List<Vector2> listWin;
 
     public GameMode mode = GameMode.GridWorld;
 
@@ -32,6 +33,7 @@ public class GridManager : MonoBehaviour
     {
         GenerateGrid();
         listCaisse = new Dictionary<GameObject, Vector2>();
+        listWin = new List<Vector2>();
     }
 
     /// <summary>
@@ -83,6 +85,7 @@ public class GridManager : MonoBehaviour
     /// <param name="States"></param>
     public void InitGrid()
     {
+        listWin.Clear();
         for (int x = 0; x < width; x++)
         {
 
@@ -95,6 +98,7 @@ public class GridManager : MonoBehaviour
                 {
                     States[x][y].reward = 1;
                     States[x][y].action = Action.Win;
+                    listWin.Add(States[x][y].pos);
                 }
                 else if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.red)
                 {

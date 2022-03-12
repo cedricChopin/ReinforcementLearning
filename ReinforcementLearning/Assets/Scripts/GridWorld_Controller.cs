@@ -127,4 +127,9 @@ public class GridWorld_Controller : AI_Controller
         }
         return possibleStates;
     }
+
+    public override bool isWin(State state)
+    {
+        return state.action == Action.Win;
+    }
 }

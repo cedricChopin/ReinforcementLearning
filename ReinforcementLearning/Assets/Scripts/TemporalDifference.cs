@@ -100,13 +100,13 @@ public class TemporalDifference : MonoBehaviour
 
             Action current_action = E_greedy(current_state);
 
-            while (current_state.action != Action.Win)
+            while (!controller.isWin(current_state))
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
                 nextState = controller.getNextState(current_state, current_action);
 
-                if (nextState == null)
+                if (nextState == null || !controller.isPossibleAction(current_state,current_action,grid.States))
                 {
                     possibleActions[x][y][(int)current_action] = (current_action, -2f);
                     current_action = E_greedy(current_state);
@@ -160,14 +160,14 @@ public class TemporalDifference : MonoBehaviour
                 current_state = grid.States[randStateWidth][randStateHeight];
             } while (current_state.action == Action.None);
 
-            while (current_state.action != Action.Win)
+            while (!controller.isWin(current_state))
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
                 Action current_action = E_greedy(current_state);
                 nextState = controller.getNextState(current_state, current_action);
 
-                if (nextState == null)
+                if (nextState == null || !controller.isPossibleAction(current_state, current_action, grid.States))
                 {
                     possibleActions[x][y][(int)current_action] = (current_action, -2f);
                     current_action = E_greedy(current_state);

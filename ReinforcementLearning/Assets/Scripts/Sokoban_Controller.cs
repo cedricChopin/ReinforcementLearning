@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using System.Linq;
 
 public class Sokoban_Controller : AI_Controller
 {
@@ -174,5 +175,13 @@ public class Sokoban_Controller : AI_Controller
         }
 
         return isPossible;
+    }
+
+    public override bool isWin(State state)
+    {
+        var tmp = grid.listCaisse.Where(a => grid.listWin.Contains(a.Value));
+
+
+        return tmp.Count() == grid.listCaisse.Count();
     }
 }
