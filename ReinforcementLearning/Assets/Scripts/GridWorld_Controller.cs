@@ -5,6 +5,27 @@ using UnityEngine.Assertions;
 
 public class GridWorld_Controller : AI_Controller
 {
+    public void LateUpdate()
+    {
+        if (activated == true)
+        {
+            time -= Time.deltaTime;
+            if (move)
+                transform.position = Vector3.Lerp(transform.position, new Vector3(way[i].x, way[i].y, 0), Time.deltaTime * 3);
+
+            if (Vector3.Distance(transform.position, way[i]) < 0.02 && move)
+                move = false;
+            if (time < 0 && i < way.Count)
+            {
+                //transform.position = way[i];
+                time = 1f;
+                i++;
+                move = true;
+
+            }
+            if (i >= way.Count) activated = false;
+        }
+    }
 
     /// <summary>
     /// Calcul la trajectoire à prendre
@@ -38,6 +59,14 @@ public class GridWorld_Controller : AI_Controller
             nbIter++;
         }
     }
+    public override void ActivatedAI()
+    {
+        LaunchAI();
+        i = 0;
+        activated = true;
+        move = true;
+    }
+
     public override State getNextState(State actualState, Action action, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State NextState = null;
