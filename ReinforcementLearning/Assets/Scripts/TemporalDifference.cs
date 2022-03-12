@@ -121,7 +121,6 @@ public class TemporalDifference : MonoBehaviour
                 possibleActions[x][y][(int)current_action] = (current_action, newValue);
                 current_state = nextState;
                 current_action = nextAction;
-                nbAction++;
             }
         }
         for (x = 0; x < grid.width; x++)

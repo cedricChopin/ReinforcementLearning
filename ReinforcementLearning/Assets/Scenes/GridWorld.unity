@@ -603,7 +603,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gamma: 0.9
-  nbIter: 1000
+  nbIter: 10000
   Tiles: {fileID: 1444857956}
   firstVisitOnPolicy: 1
   firstVisitOffPolicy: 1
@@ -1405,7 +1405,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gamma: 0.9
-  nbIt: 1000
+  nbIt: 10000
   grid: {fileID: 1444857957}
   controller: {fileID: 475698501}
   epsilon: 0.1
