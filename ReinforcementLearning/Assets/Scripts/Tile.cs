@@ -55,11 +55,14 @@ public class Tile : MonoBehaviour
             {
                 gotCaisse = true;
                 GameObject go = Instantiate(caisse, transform.position, Quaternion.identity);
+                grid.States[(int)transform.position.x][(int)transform.position.y].hasCaisse = true;
                 grid.listCaisse.Add(go,transform.position);
             }
             else
             {
-                foreach(var go in grid.listCaisse)
+                grid.States[(int)transform.position.x][(int)transform.position.y].hasCaisse = false;
+                gotCaisse = false;
+                foreach (var go in grid.listCaisse)
                 {
                     if(go.Key.transform.position == transform.position)
                     {
@@ -68,7 +71,7 @@ public class Tile : MonoBehaviour
                         break;
                     }
                 }
-                gotCaisse = false;
+                
             }
         }
     }

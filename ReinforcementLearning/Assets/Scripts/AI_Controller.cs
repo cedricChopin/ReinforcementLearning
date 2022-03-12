@@ -95,7 +95,7 @@ public class AI_Controller : MonoBehaviour
     /// <param name="actualState">Etat actuel</param>
     /// <param name="x">Indice de l'etat actuel dans la liste d'etats</param>
     /// <returns></returns>
-    public  virtual State getNextState(State actualState, Action action) { return null; }
+    public  virtual State getNextState(State actualState, Action action, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse) { return null; }
 
     /// <summary>
     /// Retourne la meilleure action
@@ -119,7 +119,7 @@ public class AI_Controller : MonoBehaviour
     /// <returns></returns>
     public virtual bool isPossibleAction(State state, Action action, List<List<State>> lstState) { return false; }
 
-    public virtual bool isWin(State state)
+    public virtual bool isWin(State state, Dictionary<GameObject, Vector2> lstCaisse)
     {
         return false;
     }

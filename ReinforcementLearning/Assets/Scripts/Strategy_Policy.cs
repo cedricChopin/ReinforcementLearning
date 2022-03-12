@@ -23,7 +23,7 @@ public class Strategy_Policy : MonoBehaviour
     public bool policyStable = false;
     public float gamma = 0.75f; //Gamma
 
-    public float delta = 0f; 
+    public float delta = 0f;
     public float theta = 0.01f;
     public GameObject Tiles; // Toutes les tuiles
     private GridManager gridManager; //Gestion de la grille
@@ -36,7 +36,7 @@ public class Strategy_Policy : MonoBehaviour
     {
         gridManager = Tiles.GetComponent<GridManager>();
         controller = AI_controller.GetComponent<AI_Controller>();
-        
+
 
     }
 
@@ -56,12 +56,17 @@ public class Strategy_Policy : MonoBehaviour
     }
 
 
-    
+
     /// <summary>
     /// Evaluation de la Policy
     /// </summary>
     void PolicyEvaluation()
     {
+        List<List<State>> copyState;
+        Dictionary<GameObject, Vector2> copyCaisse;
+        copyState = gridManager.States.Select(s => s).ToList();
+        copyCaisse = gridManager.listCaisse.ToDictionary(entry => entry.Key,
+                                           entry => entry.Value);
         do
         {
             delta = 0f;
@@ -71,7 +76,7 @@ public class Strategy_Policy : MonoBehaviour
                 {
                     float tmp = gridManager.States[x][y].value;
 
-                    State NextState = controller.getNextState(gridManager.States[x][y], gridManager.States[x][y].action);
+                    State NextState = controller.getNextState(gridManager.States[x][y], gridManager.States[x][y].action, copyState, ref copyCaisse);
 
                     if (NextState != null)
                     {
@@ -105,7 +110,7 @@ public class Strategy_Policy : MonoBehaviour
             }
         }
     }
-    
+
     /// <summary>
     /// Algorithme de ValueIteration
     /// </summary>
@@ -132,8 +137,8 @@ public class Strategy_Policy : MonoBehaviour
         gridManager.ChangeGrid();
     }
 
-    
 
-    
+
+
 
 }

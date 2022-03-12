@@ -7,7 +7,7 @@ public class GridWorld_Controller : AI_Controller
 {
 
 
-    public override State getNextState(State actualState, Action action)
+    public override State getNextState(State actualState, Action action, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State NextState = null;
         int x = (int)actualState.pos.x;
@@ -16,19 +16,19 @@ public class GridWorld_Controller : AI_Controller
         {
             case Action.Top:
                 if (y + 1 < grid.height)
-                    NextState = grid.States[x][y + 1];
+                    NextState = lstState[x][y + 1];
                 break;
             case Action.Down:
                 if (y - 1 >= 0)
-                    NextState = grid.States[x][y - 1];
+                    NextState = lstState[x][y - 1];
                 break;
             case Action.Right:
                 if (x + 1 < grid.width)
-                    NextState = grid.States[x + 1][y];
+                    NextState = lstState[x + 1][y];
                 break;
             case Action.Left:
                 if (x - 1 >= 0)
-                    NextState = grid.States[x - 1][y];
+                    NextState = lstState[x - 1][y];
                 break;
 
         }
@@ -128,7 +128,7 @@ public class GridWorld_Controller : AI_Controller
         return possibleStates;
     }
 
-    public override bool isWin(State state)
+    public override bool isWin(State state, Dictionary<GameObject, Vector2> lstCaisse)
     {
         return state.action == Action.Win;
     }

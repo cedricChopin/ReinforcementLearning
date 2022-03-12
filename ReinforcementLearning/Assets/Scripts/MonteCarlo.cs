@@ -216,6 +216,11 @@ public class MonteCarlo : MonoBehaviour
     List<State> generate_random_episode()
     {
         List<State> episode = new List<State>();
+        List<List<State>> copyState;
+        Dictionary<GameObject, Vector2> copyCaisse;
+        copyState = gridManager.States.Select(s => s).ToList();
+        copyCaisse = gridManager.listCaisse.ToDictionary(entry => entry.Key,
+                                           entry => entry.Value);
         bool done = false;
         State current_state;
         do
@@ -232,7 +237,7 @@ public class MonteCarlo : MonoBehaviour
             Action action = (Action)Random.Range(0, 4);
             State nextState;
             if (controller.isPossibleAction(current_state, action, gridManager.States))
-                nextState = controller.getNextState(current_state, action);
+                nextState = controller.getNextState(current_state, action, copyState, ref copyCaisse);
             else
                 nextState = current_state;
 
@@ -251,6 +256,11 @@ public class MonteCarlo : MonoBehaviour
 
     List<State> generate_episode()
     {
+        List<List<State>> copyState;
+        Dictionary<GameObject, Vector2> copyCaisse;
+        copyState = gridManager.States.Select(s => s).ToList();
+        copyCaisse = gridManager.listCaisse.ToDictionary(entry => entry.Key,
+                                           entry => entry.Value);
         List<State> episode = new List<State>();
         bool done = false;
         State current_state;
@@ -282,7 +292,7 @@ public class MonteCarlo : MonoBehaviour
             State nextState = current_state;
             if (controller.isPossibleAction(current_state, action, gridManager.States))
             {
-                nextState = controller.getNextState(current_state, action);
+                nextState = controller.getNextState(current_state, action, copyState, ref copyCaisse);
             }
 
 

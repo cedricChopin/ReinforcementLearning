@@ -1793,6 +1793,7 @@ MonoBehaviour:
   tile: {fileID: 4132298375967044175, guid: d7dec594874ee644082b0daf1abc64c6, type: 3}
   cam: {fileID: 1430681976}
   parent: {fileID: 1444857958}
+  listWin: []
   mode: 0
 --- !u!4 &1444857958
 Transform:

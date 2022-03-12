@@ -6,7 +6,7 @@ using System.Linq;
 
 public class Sokoban_Controller : AI_Controller
 {
-    public override State getNextState(State actualState, Action action)
+    public override State getNextState(State actualState, Action action, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State NextState = null;
         int x = (int)actualState.pos.x;
@@ -15,80 +15,16 @@ public class Sokoban_Controller : AI_Controller
         switch (action)
         {
             case Action.Top:
-                if (y + 1 < grid.height)
-                {
-                    if (!grid.States[x][y + 1].hasCaisse)
-                        NextState = grid.States[x][y + 1];
-                    else
-                    {
-                        if (y + 2 < grid.height)
-                        {
-                            if (!(grid.States[x][y + 2].action == Action.None) &&
-                                !(grid.States[x][y + 2].hasCaisse))
-                            {
-                                grid.MoveCaisse(new Vector2(x, y + 1), new Vector2(x, y + 2));
-                                NextState = grid.States[x][y + 1];
-                            }
-                        }
-                    }
-                }
+                NextState = GoTop(actualState, lstState, ref lstCaisse);
                 break;
             case Action.Down:
-                if (y - 1 >= 0)
-                {
-                    if (!grid.States[x][y - 1].hasCaisse)
-                        NextState = grid.States[x][y - 1];
-                    else
-                    {
-                        if (y - 2 >= 0)
-                        {
-                            if (!(grid.States[x][y - 2].action == Action.None) &&
-                                !(grid.States[x][y - 2].hasCaisse))
-                            {
-                                grid.MoveCaisse(new Vector2(x, y - 1), new Vector2(x, y - 2));
-                                NextState = grid.States[x][y - 1];
-                            }
-                        }
-                    }
-                }
+                NextState = GoDown(actualState, lstState, ref lstCaisse);
                 break;
             case Action.Right:
-                if (x + 1 < grid.width)
-                {
-                    if (!grid.States[x+1][y].hasCaisse)
-                        NextState = grid.States[x+1][y];
-                    else
-                    {
-                        if (x + 2 < grid.width)
-                        {
-                            if (!(grid.States[x + 2][y].action == Action.None) &&
-                                !(grid.States[x + 2][y].hasCaisse))
-                            {
-                                grid.MoveCaisse(new Vector2(x+1, y), new Vector2(x+2, y));
-                                NextState = grid.States[x+1][y];
-                            }
-                        }
-                    }
-                }
+                NextState = GoRight(actualState, lstState, ref lstCaisse);
                 break;
             case Action.Left:
-                if (x - 1 >= 0)
-                {
-                    if (!grid.States[x - 1][y].hasCaisse)
-                        NextState = grid.States[x - 1][y];
-                    else
-                    {
-                        if (x - 2 >= 0)
-                        {
-                            if (!(grid.States[x-2][y].action == Action.None) &&
-                                !(grid.States[x-2][y].hasCaisse))
-                            {
-                                grid.MoveCaisse(new Vector2(x-1, y), new Vector2(x-2, y));
-                                NextState = grid.States[x-2][y];
-                            }
-                        }
-                    }
-                }
+                NextState = GoLeft(actualState, lstState, ref lstCaisse);
                 break;
 
         }
@@ -177,11 +113,111 @@ public class Sokoban_Controller : AI_Controller
         return isPossible;
     }
 
-    public override bool isWin(State state)
+    public override bool isWin(State state, Dictionary<GameObject, Vector2> lstCaisse)
     {
-        var tmp = grid.listCaisse.Where(a => grid.listWin.Contains(a.Value));
+        var tmp = lstCaisse.Where(a => grid.listWin.Contains(a.Value));
 
 
-        return tmp.Count() == grid.listCaisse.Count();
+        return tmp.Count() == lstCaisse.Count();
+    }
+
+
+
+    private State GoLeft(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    {
+        State nextState = null;
+        if (actualState.pos.x - 1 >= 0)
+        {
+            Vector2 newPos = new Vector2(actualState.pos.x - 1, actualState.pos.y);
+
+            if (lstState[(int)newPos.x][(int)newPos.y].hasCaisse)
+            {
+                if (newPos.x - 1 >= 0)
+                {
+                    if (lstState[(int)newPos.x - 1][(int)newPos.y].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x - 1, newPos.y)).rend.color != Color.red)
+                    {
+                        transform.position = newPos;
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x - 1, newPos.y), lstState, ref lstCaisse);
+                    }
+                }
+            }
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
+            nextState = lstState[(int)newPos.x][(int)newPos.y];
+        }
+        return nextState;
+    }
+
+    private State GoRight(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    {
+        State nextState = null;
+        if (actualState.pos.x + 1 < grid.width)
+        {
+            Vector2 newPos = new Vector2(actualState.pos.x + 1, actualState.pos.y);
+            if (lstState[(int)newPos.x][(int)newPos.y].hasCaisse)
+            {
+                if (newPos.x + 1 < grid.width)
+                {
+                    if (!lstState[(int)newPos.x + 1][(int)newPos.y].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x + 1, newPos.y)).rend.color != Color.red)
+                    {
+                        transform.position = newPos;
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x + 1, newPos.y),lstState, ref lstCaisse); 
+                    }
+                }
+            }
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
+            nextState = lstState[(int)newPos.x][(int)newPos.y];
+        }
+        return nextState;
+    }
+
+    private State GoTop(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    {
+        State nextState = null;
+        if (actualState.pos.y + 1 < grid.height)
+        {
+            Vector2 newPos = new Vector2(actualState.pos.x, actualState.pos.y + 1);
+            if (lstState[(int)newPos.x][(int)newPos.y].hasCaisse)
+            {
+                if (newPos.y + 1 < grid.height)
+                {
+                    if (!lstState[(int)newPos.x][(int)newPos.y + 1].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y + 1)).rend.color != Color.red)
+                    {
+                        transform.position = newPos;
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x, newPos.y + 1), lstState, ref lstCaisse);
+                    }
+                }
+            }
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
+
+            nextState = lstState[(int)newPos.x][(int)newPos.y];
+        }
+        return nextState;
+    }
+
+    private State GoDown(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    {
+        State nextState = null;
+        if (actualState.pos.y - 1 >= 0)
+        {
+            Vector2 newPos = new Vector2(actualState.pos.x, actualState.pos.y - 1);
+            if (lstState[(int)newPos.x][(int)newPos.y].hasCaisse)
+            {
+                if (newPos.y - 1 >= 0)
+                {
+                    if (!lstState[(int)newPos.x][(int)newPos.y - 1].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y - 1)).rend.color != Color.red)
+                    {
+                        transform.position = newPos;
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x, newPos.y - 1), lstState, ref lstCaisse);
+                    }
+                }
+            }
+            else if (grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y)).rend.color != Color.red)
+                transform.position = newPos;
+            nextState = lstState[(int)newPos.x][(int)newPos.y];
+        }
+        return nextState;
     }
 }

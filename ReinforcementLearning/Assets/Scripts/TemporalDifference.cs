@@ -88,25 +88,30 @@ public class TemporalDifference : MonoBehaviour
         int y;
         int xN;
         int yN;
+        List<List<State>> copyState;
+        Dictionary<GameObject, Vector2> copyCaisse;
         for (int i = 0; i < nbIt; i++)
         {
+            copyState = grid.States.Select(s => s).ToList();
+            copyCaisse = grid.listCaisse.ToDictionary(entry => entry.Key,
+                                               entry => entry.Value);
             State current_state;
             do
             {
                 int randStateWidth = Random.Range(0, grid.width);
                 int randStateHeight = Random.Range(0, grid.height);
-                current_state = grid.States[randStateWidth][randStateHeight];
+                current_state = copyState[randStateWidth][randStateHeight];
             } while (current_state.action == Action.None);
 
             Action current_action = E_greedy(current_state);
 
-            while (!controller.isWin(current_state))
+            while (!controller.isWin(current_state, copyCaisse))
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
-                nextState = controller.getNextState(current_state, current_action);
+                nextState = controller.getNextState(current_state, current_action, copyState, ref copyCaisse);
 
-                if (nextState == null || !controller.isPossibleAction(current_state,current_action,grid.States))
+                if (nextState == null || !controller.isPossibleAction(current_state,current_action, copyState))
                 {
                     possibleActions[x][y][(int)current_action] = (current_action, -2f);
                     current_action = E_greedy(current_state);
@@ -149,25 +154,31 @@ public class TemporalDifference : MonoBehaviour
         int y;
         int xN;
         int yN;
-
+        List<List<State>> copyState;
+        Dictionary<GameObject, Vector2> copyCaisse;
+        
         for (int i = 0; i < nbIt; i++)
         {
+            int iter = 100000;
+            copyState = grid.States.Select(s => s).ToList();
+            copyCaisse = grid.listCaisse.ToDictionary(entry => entry.Key,
+                                               entry => entry.Value);
             State current_state;
             do
             {
                 int randStateWidth = Random.Range(0, grid.width);
                 int randStateHeight = Random.Range(0, grid.height);
-                current_state = grid.States[randStateWidth][randStateHeight];
+                current_state = copyState[randStateWidth][randStateHeight];
             } while (current_state.action == Action.None);
 
-            while (!controller.isWin(current_state))
+            while (!controller.isWin(current_state, copyCaisse) && iter > 0)
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
                 Action current_action = E_greedy(current_state);
-                nextState = controller.getNextState(current_state, current_action);
+                nextState = controller.getNextState(current_state, current_action, copyState, ref copyCaisse);
 
-                if (nextState == null || !controller.isPossibleAction(current_state, current_action, grid.States))
+                if (nextState == null || !controller.isPossibleAction(current_state, current_action, copyState))
                 {
                     possibleActions[x][y][(int)current_action] = (current_action, -2f);
                     current_action = E_greedy(current_state);
@@ -182,6 +193,7 @@ public class TemporalDifference : MonoBehaviour
                 float newValue = currentValue + alpha * (nextState.reward + gamma * nextValue - currentValue);
                 possibleActions[x][y][(int)current_action] = (current_action, newValue);
                 current_state = nextState;
+                iter--;
             }
         }
         for (x = 0; x < grid.width; x++)

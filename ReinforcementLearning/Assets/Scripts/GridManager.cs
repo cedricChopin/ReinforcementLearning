@@ -142,4 +142,13 @@ public class GridManager : MonoBehaviour
         States[(int)pos.x][(int)pos.y].hasCaisse = false;
         States[(int)newPos.x][(int)newPos.y].hasCaisse = true;
     }
+
+    public void SimulateMoveCaisse(Vector2 pos, Vector2 newPos, List<List<State>> lststate, ref Dictionary<GameObject, Vector2> lstCaisse)
+    {
+        var caisse = lstCaisse.FirstOrDefault(x => x.Value == pos).Key;
+        lstCaisse.Remove(caisse);
+        lstCaisse.Add(caisse, newPos);
+        lststate[(int)pos.x][(int)pos.y].hasCaisse = false;
+        lststate[(int)newPos.x][(int)newPos.y].hasCaisse = true;
+    }
 }
