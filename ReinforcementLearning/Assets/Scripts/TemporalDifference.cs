@@ -30,9 +30,8 @@ public class TemporalDifference : MonoBehaviour
         {
             actionValue.Add(ac.Item2);
         }
-
         float max = actionValue.Max();
-        float res = 0f;
+        float res;
 
         foreach (float value in actionValue)
         {
@@ -43,7 +42,7 @@ public class TemporalDifference : MonoBehaviour
             proba.Add(res);
         }
 
-        float random = Random.Range(0.001f, 1);
+        float random = Random.Range(0f, 0.99f);
         float cumul = 0f;
 
         //ready for spaghetti code ?
@@ -68,14 +67,21 @@ public class TemporalDifference : MonoBehaviour
             possibleActions.Add(new List<List<(Action, float)>>());
             for (int y = 0; y < grid.height; y++)
             {
-                possibleActions[x].Add(controller.GetPossibleActions(grid.States[x][y], grid.States).Select(x => (x.action, Random.Range(0.01f, 0.99f))).ToList());
+                List<(Action, float)> actions = new List<(Action, float)>();
+                actions.Add((Action.Top, Random.Range(-2f, 2f)));
+                actions.Add((Action.Down, Random.Range(-2f, 2f)));
+                actions.Add((Action.Left, Random.Range(-2f, 2f)));
+                actions.Add((Action.Right, Random.Range(-2f, 2f)));
+                possibleActions[x].Add(actions);
             }
         }
     }
 
     public void SARSA() {
         //TODO
+        grid.InitGrid();
         generate_policy();
+
         State nextState;
         Action nextAction;
         int x;
@@ -92,20 +98,27 @@ public class TemporalDifference : MonoBehaviour
                 current_state = grid.States[randStateWidth][randStateHeight];
             } while (current_state.action == Action.None);
             Action current_action = E_greedy(current_state);
-            int nbAction = 0;
-            while(current_state.action != Action.Win && nbAction < 100)
+            while(current_state.action != Action.Win)
             {
-                nextState = controller.getNextState(current_state, current_action);
-                nextAction = E_greedy(nextState);
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
+                nextState = controller.getNextState(current_state, current_action);
+
+                if (nextState == null)
+                {
+                    possibleActions[x][y][(int)current_action] = (current_action, -2f);
+                    current_action = E_greedy(current_state);
+                    continue;
+                }
+                nextAction = E_greedy(nextState);
+                
 
                 xN = (int)nextState.pos.x;
                 yN = (int)nextState.pos.y;
-                float currentValue = possibleActions[x][y].Where(a => a.Item1 == current_action).ToList()[0].Item2;
-                float nextValue = possibleActions[xN][yN].Where(a => a.Item1 == nextAction).ToList()[0].Item2;
+                float currentValue = possibleActions[x][y][(int)current_action].Item2;
+                float nextValue = possibleActions[xN][yN][(int)nextAction].Item2;
                 float newValue = currentValue  + alpha * (nextState.reward + gamma * nextValue - currentValue);
-                possibleActions[x][y].Where(a => a.Item1 == current_action).ToList()[0] = (current_action, newValue);
+                possibleActions[x][y][(int)current_action] = (current_action, newValue);
                 current_state = nextState;
                 current_action = nextAction;
                 nbAction++;
