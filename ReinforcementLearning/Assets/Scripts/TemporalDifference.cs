@@ -127,9 +127,12 @@ public class TemporalDifference : MonoBehaviour
         {
             for (y = 0; y < grid.height; y++)
             {
-                var bestAction = possibleActions[x][y].OrderByDescending(x => x.Item2).First();
-                grid.States[x][y].action = bestAction.Item1;
-                grid.States[x][y].value = bestAction.Item2;
+                if (grid.States[x][y].action != Action.None && grid.States[x][y].action != Action.Win)
+                {
+                    var bestAction = possibleActions[x][y].OrderByDescending(x => x.Item2).First();
+                    grid.States[x][y].action = bestAction.Item1;
+                    grid.States[x][y].value = bestAction.Item2;
+                }
             }
         }
                 grid.ChangeGrid();
