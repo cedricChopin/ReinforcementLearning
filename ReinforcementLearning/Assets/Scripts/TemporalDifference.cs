@@ -77,8 +77,8 @@ public class TemporalDifference : MonoBehaviour
         }
     }
 
-    public void SARSA() {
-        //TODO
+    public void SARSA()
+    {
         grid.InitGrid();
         generate_policy();
 
@@ -88,7 +88,7 @@ public class TemporalDifference : MonoBehaviour
         int y;
         int xN;
         int yN;
-        for(int i  = 0; i < nbIt; i++)
+        for (int i = 0; i < nbIt; i++)
         {
             State current_state;
             do
@@ -97,8 +97,10 @@ public class TemporalDifference : MonoBehaviour
                 int randStateHeight = Random.Range(0, grid.height);
                 current_state = grid.States[randStateWidth][randStateHeight];
             } while (current_state.action == Action.None);
+
             Action current_action = E_greedy(current_state);
-            while(current_state.action != Action.Win)
+
+            while (current_state.action != Action.Win)
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
@@ -111,13 +113,13 @@ public class TemporalDifference : MonoBehaviour
                     continue;
                 }
                 nextAction = E_greedy(nextState);
-                
+
 
                 xN = (int)nextState.pos.x;
                 yN = (int)nextState.pos.y;
                 float currentValue = possibleActions[x][y][(int)current_action].Item2;
                 float nextValue = possibleActions[xN][yN][(int)nextAction].Item2;
-                float newValue = currentValue  + alpha * (nextState.reward + gamma * nextValue - currentValue);
+                float newValue = currentValue + alpha * (nextState.reward + gamma * nextValue - currentValue);
                 possibleActions[x][y][(int)current_action] = (current_action, newValue);
                 current_state = nextState;
                 current_action = nextAction;
@@ -135,10 +137,65 @@ public class TemporalDifference : MonoBehaviour
                 }
             }
         }
-                grid.ChangeGrid();
+        grid.ChangeGrid();
     }
 
     public void QLearning() {
-        //TODO
+        grid.InitGrid();
+        generate_policy();
+
+        State nextState;
+        int x;
+        int y;
+        int xN;
+        int yN;
+
+        for (int i = 0; i < nbIt; i++)
+        {
+            State current_state;
+            do
+            {
+                int randStateWidth = Random.Range(0, grid.width);
+                int randStateHeight = Random.Range(0, grid.height);
+                current_state = grid.States[randStateWidth][randStateHeight];
+            } while (current_state.action == Action.None);
+
+            while (current_state.action != Action.Win)
+            {
+                x = (int)current_state.pos.x;
+                y = (int)current_state.pos.y;
+                Action current_action = E_greedy(current_state);
+                nextState = controller.getNextState(current_state, current_action);
+
+                if (nextState == null)
+                {
+                    possibleActions[x][y][(int)current_action] = (current_action, -2f);
+                    current_action = E_greedy(current_state);
+                    continue;
+                }
+
+                xN = (int)nextState.pos.x;
+                yN = (int)nextState.pos.y;
+                float currentValue = possibleActions[x][y][(int)current_action].Item2;
+                var bestAction = possibleActions[xN][yN].OrderByDescending(x => x.Item2).First();
+                float nextValue = bestAction.Item2;
+                float newValue = currentValue + alpha * (nextState.reward + gamma * nextValue - currentValue);
+                possibleActions[x][y][(int)current_action] = (current_action, newValue);
+                current_state = nextState;
+            }
+        }
+        for (x = 0; x < grid.width; x++)
+        {
+            for (y = 0; y < grid.height; y++)
+            {
+                if (grid.States[x][y].action != Action.None && grid.States[x][y].action != Action.Win)
+                {
+                    var bestAction = possibleActions[x][y].OrderByDescending(x => x.Item2).First();
+                    grid.States[x][y].action = bestAction.Item1;
+                    grid.States[x][y].value = bestAction.Item2;
+                }
+            }
+        }
+        grid.ChangeGrid();
     }
 }
