@@ -6,8 +6,39 @@ using UnityEngine.Assertions;
 public class GridWorld_Controller : AI_Controller
 {
 
-
-    public override State getNextState(State actualState, Action action, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    /// <summary>
+    /// Calcul la trajectoire à prendre
+    /// </summary>
+    public override void LaunchAI()
+    {
+        way = new List<Vector2>();
+        currentPos.x = (int)transform.position.x;
+        currentPos.y = (int)transform.position.y;
+        State currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
+        int nbIter = 0;
+        while (currentState.action != Action.Win && nbIter < 100)
+        {
+            switch (currentState.action)
+            {
+                case Action.Top:
+                    currentPos += Vector2.up;
+                    break;
+                case Action.Down:
+                    currentPos += Vector2.down;
+                    break;
+                case Action.Left:
+                    currentPos += Vector2.left;
+                    break;
+                case Action.Right:
+                    currentPos += Vector2.right;
+                    break;
+            }
+            way.Add(currentPos);
+            currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
+            nbIter++;
+        }
+    }
+    public override State getNextState(State actualState, Action action, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State NextState = null;
         int x = (int)actualState.pos.x;

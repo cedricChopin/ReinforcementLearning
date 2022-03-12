@@ -109,7 +109,7 @@ public class TemporalDifference : MonoBehaviour
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
-                nextState = controller.getNextState(current_state, current_action, copyState, ref copyCaisse);
+                nextState = controller.getNextState(current_state, current_action, ref copyState, ref copyCaisse);
 
                 if (nextState == null || !controller.isPossibleAction(current_state,current_action, copyState))
                 {
@@ -159,8 +159,17 @@ public class TemporalDifference : MonoBehaviour
         
         for (int i = 0; i < nbIt; i++)
         {
-            int iter = 100000;
-            copyState = grid.States.Select(s => s).ToList();
+            int iter = 100;
+            copyState = new List<List<State>>();
+            foreach(List<State> state in grid.States)
+            {
+                var petiteState = new List<State>();
+                foreach(State s in state)
+                {
+                    petiteState.Add(controller.copyState(s));
+                }
+                copyState.Add(petiteState);
+            }
             copyCaisse = grid.listCaisse.ToDictionary(entry => entry.Key,
                                                entry => entry.Value);
             State current_state;
@@ -176,7 +185,7 @@ public class TemporalDifference : MonoBehaviour
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
                 Action current_action = E_greedy(current_state);
-                nextState = controller.getNextState(current_state, current_action, copyState, ref copyCaisse);
+                nextState = controller.getNextState(current_state, current_action, ref copyState, ref copyCaisse);
 
                 if (nextState == null || !controller.isPossibleAction(current_state, current_action, copyState))
                 {

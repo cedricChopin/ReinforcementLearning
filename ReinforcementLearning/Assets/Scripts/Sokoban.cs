@@ -15,7 +15,7 @@ public class Sokoban : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.DownArrow)) GoDown();
     }
 
-    private void GoLeft()
+    public void GoLeft()
     {
         if (transform.position.x - 1 >= 0)
         {
@@ -37,7 +37,7 @@ public class Sokoban : MonoBehaviour
         }
     }
 
-    private void GoRight()
+    public void GoRight()
     {
         if (transform.position.x + 1 < grid.width)
         {
@@ -58,7 +58,7 @@ public class Sokoban : MonoBehaviour
         }
     }
 
-    private void GoTop()
+    public void GoTop()
     {
         if (transform.position.y + 1 < grid.height)
         {
@@ -79,7 +79,7 @@ public class Sokoban : MonoBehaviour
         }
     }
 
-    private void GoDown()
+    public void GoDown()
     {
         if (transform.position.y - 1 >= 0)
         {

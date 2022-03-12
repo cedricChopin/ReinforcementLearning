@@ -76,7 +76,7 @@ public class Strategy_Policy : MonoBehaviour
                 {
                     float tmp = gridManager.States[x][y].value;
 
-                    State NextState = controller.getNextState(gridManager.States[x][y], gridManager.States[x][y].action, copyState, ref copyCaisse);
+                    State NextState = controller.getNextState(gridManager.States[x][y], gridManager.States[x][y].action, ref copyState, ref copyCaisse);
 
                     if (NextState != null)
                     {

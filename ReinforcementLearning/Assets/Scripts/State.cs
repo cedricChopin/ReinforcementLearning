@@ -17,4 +17,15 @@ public class State
         hasCaisse = false;
         pos = Vector2.zero;
     }
+
+    public State(State previousState)
+    {
+        value = previousState.value;
+        reward = previousState.reward;
+        action = previousState.action;
+        hasCaisse = previousState.hasCaisse;
+        pos = previousState.pos;
+    }
+
+
 }

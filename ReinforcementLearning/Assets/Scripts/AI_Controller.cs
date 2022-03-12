@@ -8,14 +8,14 @@ public class AI_Controller : MonoBehaviour
     public List<Vector2> way; // Liste contenant le chemin à suivre
     public Strategy_Policy policy; //Script contenant PolicyIteration et ValueIteration
     public GridManager grid; //Gestion de la grille
-    private Vector2 currentPos; //Position actuelle de Madeline
+    protected Vector2 currentPos; //Position actuelle de Madeline
 
     [SerializeField]
-    private bool activated = false; //True si elle a encore des actions à effectuée
+    protected bool activated = false; //True si elle a encore des actions à effectuée
 
-    float time = 1f; //Temps entre deux mouvements
-    int i = 0;
-    bool move = false;
+    protected float time = 1f; //Temps entre deux mouvements
+    protected int i = 0;
+    protected bool move = false;
 
     public void Start()
     {
@@ -24,7 +24,7 @@ public class AI_Controller : MonoBehaviour
         currentPos = Vector2.zero;
     }
 
-    public void LateUpdate()
+    /*public void LateUpdate()
     {
         if (activated == true)
         {
@@ -44,50 +44,22 @@ public class AI_Controller : MonoBehaviour
             }
             if (i >= way.Count) activated = false;
         }
-    }
+    }*/
 
     /// <summary>
     /// Permet d'activer Madeline pour qu'elle avance dans le monde
     /// </summary>
-    public void ActivatedAI()
+    public virtual void ActivatedAI()
     {
-        LaunchAI();
-        i = 0;
-        activated = true;
-        move = true;
+        
     }
 
     /// <summary>
     /// Calcul la trajectoire à prendre
     /// </summary>
-    public void LaunchAI()
+    public virtual void LaunchAI()
     {
-        way = new List<Vector2>();
-        currentPos.x = (int)transform.position.x;
-        currentPos.y = (int)transform.position.y;
-        State currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
-        int nbIter = 0;
-        while(currentState.action != Action.Win && nbIter < 100)
-        {
-            switch (currentState.action)
-            {
-                case Action.Top:
-                    currentPos += Vector2.up;
-                    break;
-                case Action.Down:
-                    currentPos += Vector2.down;
-                    break;
-                case Action.Left:
-                    currentPos += Vector2.left;
-                    break;
-                case Action.Right:
-                    currentPos += Vector2.right;
-                    break;
-            }
-            way.Add(currentPos);
-            currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
-            nbIter++;
-        }
+        return; 
     }
     /// <summary>
     /// Retourne l'etat suivant
@@ -95,7 +67,7 @@ public class AI_Controller : MonoBehaviour
     /// <param name="actualState">Etat actuel</param>
     /// <param name="x">Indice de l'etat actuel dans la liste d'etats</param>
     /// <returns></returns>
-    public  virtual State getNextState(State actualState, Action action, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse) { return null; }
+    public  virtual State getNextState(State actualState, Action action, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse) { return null; }
 
     /// <summary>
     /// Retourne la meilleure action
@@ -166,6 +138,8 @@ public class AI_Controller : MonoBehaviour
         res.value = state.value;
         res.reward = state.reward;
         res.hasCaisse = state.hasCaisse;
+        res.action = state.action;
+        res.pos = state.pos;
         return res;
     }
 

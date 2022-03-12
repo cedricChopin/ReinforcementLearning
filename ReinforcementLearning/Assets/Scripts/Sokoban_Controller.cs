@@ -6,7 +6,51 @@ using System.Linq;
 
 public class Sokoban_Controller : AI_Controller
 {
-    public override State getNextState(State actualState, Action action, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    [SerializeField]
+    private Sokoban sokoban;
+    /// <summary>
+    /// Calcul la trajectoire à prendre
+    /// </summary>
+    public override void LaunchAI()
+    {
+        way = new List<Vector2>();
+        currentPos.x = (int)transform.position.x;
+        currentPos.y = (int)transform.position.y;
+        State currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
+        int nbIter = 0;
+        while (!isWin(currentState, grid.listCaisse) && nbIter < 100)
+        {
+            switch (currentState.action)
+            {
+                case Action.Top:
+                    sokoban.GoTop();
+                    break;
+                case Action.Down:
+                    sokoban.GoDown();
+                    break;
+                case Action.Left:
+                    sokoban.GoLeft();
+                    break;
+                case Action.Right:
+                    sokoban.GoRight();
+                    break;
+            }
+            currentPos.x = (int)transform.position.x;
+            currentPos.y = (int)transform.position.y;
+            way.Add(currentPos);
+            currentState = grid.States[(int)currentPos.x][(int)currentPos.y];
+            nbIter++;
+        }
+    }
+
+    public override void ActivatedAI()
+    {
+        LaunchAI();
+        i = 0;
+        activated = true;
+        move = true;
+    }
+    public override State getNextState(State actualState, Action action, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State NextState = null;
         int x = (int)actualState.pos.x;
@@ -15,16 +59,16 @@ public class Sokoban_Controller : AI_Controller
         switch (action)
         {
             case Action.Top:
-                NextState = GoTop(actualState, lstState, ref lstCaisse);
+                NextState = GoTop(actualState, ref lstState, ref lstCaisse);
                 break;
             case Action.Down:
-                NextState = GoDown(actualState, lstState, ref lstCaisse);
+                NextState = GoDown(actualState, ref lstState, ref lstCaisse);
                 break;
             case Action.Right:
-                NextState = GoRight(actualState, lstState, ref lstCaisse);
+                NextState = GoRight(actualState, ref lstState, ref lstCaisse);
                 break;
             case Action.Left:
-                NextState = GoLeft(actualState, lstState, ref lstCaisse);
+                NextState = GoLeft(actualState, ref lstState, ref lstCaisse);
                 break;
 
         }
@@ -123,7 +167,7 @@ public class Sokoban_Controller : AI_Controller
 
 
 
-    private State GoLeft(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    private State GoLeft(State actualState, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State nextState = null;
         if (actualState.pos.x - 1 >= 0)
@@ -137,7 +181,7 @@ public class Sokoban_Controller : AI_Controller
                     if (lstState[(int)newPos.x - 1][(int)newPos.y].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x - 1, newPos.y)).rend.color != Color.red)
                     {
                         transform.position = newPos;
-                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x - 1, newPos.y), lstState, ref lstCaisse);
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x - 1, newPos.y), ref lstState, ref lstCaisse);
                     }
                 }
             }
@@ -148,7 +192,7 @@ public class Sokoban_Controller : AI_Controller
         return nextState;
     }
 
-    private State GoRight(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    private State GoRight(State actualState, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State nextState = null;
         if (actualState.pos.x + 1 < grid.width)
@@ -161,7 +205,7 @@ public class Sokoban_Controller : AI_Controller
                     if (!lstState[(int)newPos.x + 1][(int)newPos.y].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x + 1, newPos.y)).rend.color != Color.red)
                     {
                         transform.position = newPos;
-                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x + 1, newPos.y),lstState, ref lstCaisse); 
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x + 1, newPos.y), ref lstState, ref lstCaisse); 
                     }
                 }
             }
@@ -172,7 +216,7 @@ public class Sokoban_Controller : AI_Controller
         return nextState;
     }
 
-    private State GoTop(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    private State GoTop(State actualState, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State nextState = null;
         if (actualState.pos.y + 1 < grid.height)
@@ -185,7 +229,7 @@ public class Sokoban_Controller : AI_Controller
                     if (!lstState[(int)newPos.x][(int)newPos.y + 1].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y + 1)).rend.color != Color.red)
                     {
                         transform.position = newPos;
-                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x, newPos.y + 1), lstState, ref lstCaisse);
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x, newPos.y + 1), ref lstState, ref lstCaisse);
                     }
                 }
             }
@@ -197,7 +241,7 @@ public class Sokoban_Controller : AI_Controller
         return nextState;
     }
 
-    private State GoDown(State actualState, List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
+    private State GoDown(State actualState, ref List<List<State>> lstState, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         State nextState = null;
         if (actualState.pos.y - 1 >= 0)
@@ -210,7 +254,7 @@ public class Sokoban_Controller : AI_Controller
                     if (!lstState[(int)newPos.x][(int)newPos.y - 1].hasCaisse && grid.GetTileAtPosition(new Vector2(newPos.x, newPos.y - 1)).rend.color != Color.red)
                     {
                         transform.position = newPos;
-                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x, newPos.y - 1), lstState, ref lstCaisse);
+                        grid.SimulateMoveCaisse(newPos, new Vector2(newPos.x, newPos.y - 1), ref lstState, ref lstCaisse);
                     }
                 }
             }

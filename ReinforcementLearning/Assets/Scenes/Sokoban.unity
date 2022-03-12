@@ -1101,9 +1101,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1999889552}
+      - m_Target: {fileID: 1999889556}
         m_TargetAssemblyTypeName: AI_Controller, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: ActivatedAI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2018,6 +2018,7 @@ MonoBehaviour:
   tile: {fileID: 4132298375967044175, guid: d7dec594874ee644082b0daf1abc64c6, type: 3}
   cam: {fileID: 1546359479}
   parent: {fileID: 1614922039}
+  listWin: []
   mode: 1
 --- !u!4 &1614922039
 Transform:
@@ -2606,3 +2607,4 @@ MonoBehaviour:
   policy: {fileID: 1350744616}
   grid: {fileID: 1614922038}
   activated: 0
+  sokoban: {fileID: 1999889553}

@@ -237,7 +237,7 @@ public class MonteCarlo : MonoBehaviour
             Action action = (Action)Random.Range(0, 4);
             State nextState;
             if (controller.isPossibleAction(current_state, action, gridManager.States))
-                nextState = controller.getNextState(current_state, action, copyState, ref copyCaisse);
+                nextState = controller.getNextState(current_state, action, ref copyState, ref copyCaisse);
             else
                 nextState = current_state;
 
@@ -292,7 +292,7 @@ public class MonteCarlo : MonoBehaviour
             State nextState = current_state;
             if (controller.isPossibleAction(current_state, action, gridManager.States))
             {
-                nextState = controller.getNextState(current_state, action, copyState, ref copyCaisse);
+                nextState = controller.getNextState(current_state, action, ref copyState, ref copyCaisse);
             }
 
 
