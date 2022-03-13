@@ -2,20 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Actions possibles dans le monde
+/// </summary>
+public enum Action
+{
+    Top = 0,
+    Down = 1,
+    Left = 2,
+    Right = 3,
+    None = 4,
+    Win = 5
+}
 public class State
 {
-    public float value;
-    public float reward;
-    public Action action;
+    public List<float> value;
+    public List<float> reward;
+    public List<Action> action;
     public bool hasCaisse;
     public Vector2 pos;
+    public bool isWin;
     public State()
     {
-        value = 0;
-        reward = 0;
-        action = Action.None;
+        value = new List<float> { 0f, 0f, 0f, 0f };
+        reward = new List<float> { -1f, -1f, -1f, -1f };
+        action = new List<Action> { Action.Top, Action.Down, Action.Left, Action.Right };
         hasCaisse = false;
         pos = Vector2.zero;
+        isWin = false;
     }
 
     public State(State previousState)

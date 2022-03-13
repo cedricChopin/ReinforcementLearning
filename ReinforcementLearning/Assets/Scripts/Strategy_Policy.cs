@@ -5,18 +5,7 @@ using System.Linq;
 using UnityEngine.Assertions;
 using TMPro;
 
-/// <summary>
-/// Actions possibles dans le monde
-/// </summary>
-public enum Action
-{
-    Top,
-    Down,
-    Left,
-    Right,
-    None,
-    Win
-}
+/*
 public class Strategy_Policy : MonoBehaviour
 {
 
@@ -67,6 +56,8 @@ public class Strategy_Policy : MonoBehaviour
         copyState = gridManager.States.Select(s => s).ToList();
         copyCaisse = gridManager.listCaisse.ToDictionary(entry => entry.Key,
                                            entry => entry.Value);
+        float reward;
+        State NextState;
         do
         {
             delta = 0f;
@@ -74,13 +65,15 @@ public class Strategy_Policy : MonoBehaviour
             {
                 for (int y = 0; y < gridManager.height; y++)
                 {
-                    float tmp = gridManager.States[x][y].value;
-
-                    State NextState = controller.getNextState(gridManager.States[x][y], gridManager.States[x][y].action, ref copyState, ref copyCaisse);
+                    float tmp = gridManager.States[x][y].value.Max();
+                    int idxAction = gridManager.States[x][y].value.IndexOf(tmp);
+                    Action act = gridManager.States[x][y].action[idxAction];
+                    
+                    (NextState, reward) = controller.getNextState(gridManager.States[x][y], act, ref copyState, ref copyCaisse);
 
                     if (NextState != null)
                     {
-                        gridManager.States[x][y].value = NextState.reward + gamma * NextState.value;
+                        gridManager.States[x][y].value = reward + gamma * NextState.value;
                         delta = Mathf.Max(delta, Mathf.Abs(tmp - gridManager.States[x][y].value));
                     }
                 }
@@ -141,4 +134,4 @@ public class Strategy_Policy : MonoBehaviour
 
 
 
-}
+}*/

@@ -101,7 +101,7 @@ public class TemporalDifference : MonoBehaviour
                 int randStateWidth = Random.Range(0, grid.width);
                 int randStateHeight = Random.Range(0, grid.height);
                 current_state = copyState[randStateWidth][randStateHeight];
-            } while (current_state.action == Action.None);
+            } while (grid.isObstacle(current_state));
 
             Action current_action = E_greedy(current_state);
 
@@ -109,7 +109,8 @@ public class TemporalDifference : MonoBehaviour
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
-                nextState = controller.getNextState(current_state, current_action, ref copyState, ref copyCaisse);
+                float reward;
+                (nextState, reward) = controller.getNextState(current_state, current_action, ref copyState, ref copyCaisse);
 
                 if (nextState == null || !controller.isPossibleAction(current_state,current_action, copyState))
                 {
@@ -124,22 +125,10 @@ public class TemporalDifference : MonoBehaviour
                 yN = (int)nextState.pos.y;
                 float currentValue = possibleActions[x][y][(int)current_action].Item2;
                 float nextValue = possibleActions[xN][yN][(int)nextAction].Item2;
-                float newValue = currentValue + alpha * (nextState.reward + gamma * nextValue - currentValue);
+                float newValue = currentValue + alpha * (reward + gamma * nextValue - currentValue);
                 possibleActions[x][y][(int)current_action] = (current_action, newValue);
                 current_state = nextState;
                 current_action = nextAction;
-            }
-        }
-        for (x = 0; x < grid.width; x++)
-        {
-            for (y = 0; y < grid.height; y++)
-            {
-                if (grid.States[x][y].action != Action.None && grid.States[x][y].action != Action.Win)
-                {
-                    var bestAction = possibleActions[x][y].OrderByDescending(x => x.Item2).First();
-                    grid.States[x][y].action = bestAction.Item1;
-                    grid.States[x][y].value = bestAction.Item2;
-                }
             }
         }
         grid.ChangeGrid();
@@ -159,7 +148,7 @@ public class TemporalDifference : MonoBehaviour
         
         for (int i = 0; i < nbIt; i++)
         {
-            int iter = 100;
+            int iter = 1000;
             copyState = new List<List<State>>();
             foreach(List<State> state in grid.States)
             {
@@ -178,19 +167,22 @@ public class TemporalDifference : MonoBehaviour
                 int randStateWidth = Random.Range(0, grid.width);
                 int randStateHeight = Random.Range(0, grid.height);
                 current_state = copyState[randStateWidth][randStateHeight];
-            } while (current_state.action == Action.None);
-
+            } while (grid.isObstacle(current_state));
+            controller.way = new List<Vector2>();
             while (!controller.isWin(current_state, copyCaisse) && iter > 0)
             {
                 x = (int)current_state.pos.x;
                 y = (int)current_state.pos.y;
                 Action current_action = E_greedy(current_state);
-                nextState = controller.getNextState(current_state, current_action, ref copyState, ref copyCaisse);
+                float reward;
+                (nextState, reward) = controller.getNextState(current_state, current_action, ref copyState, ref copyCaisse);
 
                 if (nextState == null || !controller.isPossibleAction(current_state, current_action, copyState))
                 {
-                    possibleActions[x][y][(int)current_action] = (current_action, -2f);
-                    current_action = E_greedy(current_state);
+                    float val = possibleActions[x][y][(int)current_action].Item2 + alpha * -2f;
+                    possibleActions[x][y][(int)current_action] = (current_action, val);
+
+                    //current_action = E_greedy(current_state);
                     continue;
                 }
 
@@ -199,24 +191,24 @@ public class TemporalDifference : MonoBehaviour
                 float currentValue = possibleActions[x][y][(int)current_action].Item2;
                 var bestAction = possibleActions[xN][yN].OrderByDescending(x => x.Item2).First();
                 float nextValue = bestAction.Item2;
-                float newValue = currentValue + alpha * (nextState.reward + gamma * nextValue - currentValue);
+                float newValue = currentValue + alpha * (reward + gamma * nextValue - currentValue);
                 possibleActions[x][y][(int)current_action] = (current_action, newValue);
                 current_state = nextState;
+                controller.way.Add(current_state.pos);
                 iter--;
             }
         }
+
         for (x = 0; x < grid.width; x++)
         {
             for (y = 0; y < grid.height; y++)
             {
-                if (grid.States[x][y].action != Action.None && grid.States[x][y].action != Action.Win)
-                {
-                    var bestAction = possibleActions[x][y].OrderByDescending(x => x.Item2).First();
-                    grid.States[x][y].action = bestAction.Item1;
-                    grid.States[x][y].value = bestAction.Item2;
-                }
+                grid.States[x][y].value[(int)Action.Top] = possibleActions[x][y][(int)Action.Top].Item2;
+                grid.States[x][y].value[(int)Action.Down] = possibleActions[x][y][(int)Action.Down].Item2;
+                grid.States[x][y].value[(int)Action.Left] = possibleActions[x][y][(int)Action.Left].Item2;
+                grid.States[x][y].value[(int)Action.Right] = possibleActions[x][y][(int)Action.Right].Item2;
             }
         }
-        grid.ChangeGrid();
+                grid.ChangeGrid();
     }
 }

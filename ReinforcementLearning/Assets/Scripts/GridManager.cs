@@ -59,7 +59,6 @@ public class GridManager : MonoBehaviour
 
                 State state = new State();
 
-                state.action = (Action)Random.Range(0, 4);
                 state.pos = new Vector2(x, y);
                 States[x].Add(state);
             }
@@ -91,23 +90,60 @@ public class GridManager : MonoBehaviour
 
             for (int y = 0; y < height; y++)
             {
-                States[x][y].reward = 0f;
-                States[x][y].value = 0f;
-                States[x][y].action = (Action)Random.Range(0, 4);
+                States[x][y].reward = new List<float> { -1f, -1f, -1f, -1f };
+                States[x][y].value = new List<float> { 0f, 0f, 0f, 0f };
                 if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.green)
                 {
-                    States[x][y].reward = 1;
-                    States[x][y].action = Action.Win;
+                    changeStateAround_Win(States[x][y]);
                     listWin.Add(States[x][y].pos);
                 }
-                else if (GetTileAtPosition(new Vector2(x, y)).rend.color == Color.red)
-                {
-                    States[x][y].reward = -1f;
-                    States[x][y].action = Action.None;
-                }
+                changeStateAround_Vide(States[x][y]);
 
             }
         }
+    }
+
+    private void changeStateAround_Win(State state)
+    {
+        int x = (int)state.pos.x;
+        int y = (int)state.pos.y;
+        state.isWin = true;
+        if (y + 1 < height)
+            States[x][y + 1].reward[(int)Action.Down] = 1000f;
+        if (y - 1 >= 0)
+            States[x][y - 1].reward[(int)Action.Top] = 1000f;
+        if (x + 1 < width)
+            States[x + 1][y].reward[(int)Action.Left] = 1000f;
+        if (x - 1 >= 0)
+            States[x - 1][y].reward[(int)Action.Right] = 1000f;
+    }
+
+    private void changeStateAround_Obstacle(State state)
+    {
+        int x = (int)state.pos.x;
+        int y = (int)state.pos.y;
+        if (y + 1 >= height || isObstacle(States[x][y + 1]))
+            States[x][y + 1].reward[(int)Action.Down] = -2f;
+        if (y - 1 < 0 || isObstacle(States[x][y - 1]))
+            States[x][y - 1].reward[(int)Action.Top] = -2f;
+        if (x + 1 >= width || isObstacle(States[x + 1][y]))
+            States[x + 1][y].reward[(int)Action.Left] = -2f;
+        if (x - 1 < 0 || isObstacle(States[x - 1][y]))
+            States[x - 1][y].reward[(int)Action.Right] = -2f;
+    }
+
+    private void changeStateAround_Vide(State state)
+    {
+        int x = (int)state.pos.x;
+        int y = (int)state.pos.y;
+        if (y + 1 >= height || isObstacle(States[x][y + 1]))
+            States[x][y].reward[(int)Action.Top] = -2f;
+        if (y - 1 < 0 || isObstacle(States[x][y - 1]))
+            States[x][y].reward[(int)Action.Down] = -2f;
+        if (x + 1 >= width || isObstacle(States[x + 1][y]))
+            States[x][y].reward[(int)Action.Right] = -2f;
+        if (x - 1 < 0 || isObstacle(States[x - 1][y]))
+            States[x][y].reward[(int)Action.Left] = -2f;
     }
 
     public void ChangeGrid()
@@ -117,18 +153,20 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Tile tile = GetTileAtPosition(new Vector2(x, y));
-                if (States[x][y].action == Action.Left)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "← \n" + States[x][y].value.ToString("N3");
-                else if (States[x][y].action == Action.Right)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "→ \n" + States[x][y].value.ToString("N3");
-                else if (States[x][y].action == Action.Top)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↑ \n" + States[x][y].value.ToString("N3");
-                else if (States[x][y].action == Action.Down)
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = "↓ \n" + States[x][y].value.ToString("N3");
-                else
-                    tile.GetComponentInChildren<TextMeshProUGUI>().text = States[x][y].value.ToString("N3");
+                tile.GetComponentInChildren<TextMeshProUGUI>().margin = new Vector4(0, -4.418206f, 0, -4.346054f);
+                tile.GetComponentInChildren<TextMeshProUGUI>().text = "";
+                tile.GetComponentInChildren<TextMeshProUGUI>().text += "↑ " + States[x][y].value[(int)Action.Top].ToString("N2") + "\n";
+                tile.GetComponentInChildren<TextMeshProUGUI>().text += "↓ " + States[x][y].value[(int)Action.Down].ToString("N2") + "\n";
+                tile.GetComponentInChildren<TextMeshProUGUI>().text += "← " + States[x][y].value[(int)Action.Left].ToString("N2") + "\n";
+                tile.GetComponentInChildren<TextMeshProUGUI>().text += "→ " + States[x][y].value[(int)Action.Right].ToString("N2");
             }
         }
+    }
+    public bool isObstacle(State state)
+    {
+        if (GetTileAtPosition(new Vector2(state.pos.x, state.pos.y)) == null)
+            return true;
+        return GetTileAtPosition(new Vector2(state.pos.x, state.pos.y)).rend.color == Color.red;
     }
 
     public void MoveCaisse(Vector2 pos, Vector2 newPos)
@@ -142,11 +180,19 @@ public class GridManager : MonoBehaviour
         States[(int)newPos.x][(int)newPos.y].hasCaisse = true;
     }
 
-    public void SimulateMoveCaisse(Vector2 pos, Vector2 newPos, ref List<List<State>> lststate, ref Dictionary<GameObject, Vector2> lstCaisse)
+    public float SimulateMoveCaisse(Vector2 pos, Vector2 newPos, ref List<List<State>> lststate, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
         var caisse = lstCaisse.FirstOrDefault(x => x.Value == pos).Key;
         lstCaisse[caisse] = newPos;
         lststate[(int)pos.x][(int)pos.y].hasCaisse = false;
         lststate[(int)newPos.x][(int)newPos.y].hasCaisse = true;
+        if (lststate[(int)newPos.x][(int)newPos.y].isWin)
+        {
+            return 1000f;
+        }
+        else
+        {
+            return -1f;
+        }
     }
 }

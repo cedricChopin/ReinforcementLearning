@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.Assertions;
 using TMPro;
-
+/*
 public class MonteCarlo : MonoBehaviour
 {
 
@@ -322,3 +322,4 @@ public class MonteCarlo : MonoBehaviour
 
     }
 }
+*/
