@@ -182,17 +182,28 @@ public class GridManager : MonoBehaviour
 
     public float SimulateMoveCaisse(Vector2 pos, Vector2 newPos, ref List<List<State>> lststate, ref Dictionary<GameObject, Vector2> lstCaisse)
     {
+        int x = Mathf.RoundToInt(pos.x);
+        int y = Mathf.RoundToInt(pos.y);
+        int xN = Mathf.RoundToInt(newPos.x);
+        int yN = Mathf.RoundToInt(newPos.y);
+        Vector2 posWin = listWin[0];
         var caisse = lstCaisse.FirstOrDefault(x => x.Value == pos).Key;
-        lstCaisse[caisse] = newPos;
-        lststate[(int)pos.x][(int)pos.y].hasCaisse = false;
-        lststate[(int)newPos.x][(int)newPos.y].hasCaisse = true;
-        if (lststate[(int)newPos.x][(int)newPos.y].isWin)
+        lstCaisse[caisse] = new Vector2Int(xN,yN);
+        
+        lststate[x][y].hasCaisse = false;
+        lststate[xN][yN].hasCaisse = true;
+        if (lststate[xN][yN].isWin)
         {
-            return 1000f;
+            return 2500f;
         }
+        if (Vector2.Distance(posWin, pos) >= Vector2.Distance(posWin, newPos))
+        {
+            return 1000f / Vector2.Distance(posWin, newPos);
+        }
+        
         else
         {
-            return -1f;
+            return -100f;
         }
     }
 }

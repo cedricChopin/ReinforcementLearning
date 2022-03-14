@@ -55,7 +55,9 @@ public class Tile : MonoBehaviour
             {
                 gotCaisse = true;
                 GameObject go = Instantiate(caisse, transform.position, Quaternion.identity);
-                grid.States[(int)transform.position.x][(int)transform.position.y].hasCaisse = true;
+                int x = Mathf.RoundToInt(transform.position.x);
+                int y = Mathf.RoundToInt(transform.position.y);
+                grid.States[x][y].hasCaisse = true;
                 grid.listCaisse.Add(go,transform.position);
             }
             else
